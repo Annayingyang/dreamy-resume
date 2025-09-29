@@ -19,7 +19,7 @@ export default function TemplateDetails() {
   const [tplName, setTplName] = useState("Template");
   const [step, setStep] = useState(1);
 
-  // ====== STATE ======
+ 
   const [heading, setHeading] = useState({
     name: "Nomvula",
     surname: "Dlamini",
