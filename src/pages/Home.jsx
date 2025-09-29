@@ -36,11 +36,10 @@ export default function Home() {
 
         {/* right side preview image */}
         <div className="hero-right">
-          <img
-            src="/assets/home/hero-cv.png"
-            alt="CV preview"
-            className="hero-cv"
-          />
+          
+            <img src={process.env.PUBLIC_URL + "/assets/home/hero-cv.png"} alt="CV preview" className="hero-cv" />
+
+          
           {/* optional background shapes */}
           <img
             src="/assets/home/hero-shapes.png"
