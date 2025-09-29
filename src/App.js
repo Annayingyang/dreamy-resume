@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.jsx
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import FAQs from "./pages/FAQs";
+import InterviewTips from "./pages/InterviewTips";
+import Account from "./pages/Account";
+import ResumeBuilder from "./pages/ResumeBuilder";
 
-function App() {
+// NEW imports
+import CreateCV from "./pages/CreateCV";
+import Templates from "./pages/Templates";
+import TemplateDetails from "./pages/TemplateDetails";
+
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-shell">
+      <Header />
+      <main className="container">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/create" element={<CreateCV />} />
+          <Route path="/templates" element={<Templates />} />
+          <Route path="/templates/:id" element={<TemplateDetails />} />
+          <Route path="/faqs" element={<FAQs />} />
+          <Route path="/interview" element={<InterviewTips />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/builder" element={<ResumeBuilder />} />
+        </Routes>
+      </main>
+      <Footer />
     </div>
   );
 }
-
-export default App;

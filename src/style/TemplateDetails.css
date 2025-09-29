@@ -1,0 +1,67 @@
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #334155; /* slate-700 */
+}
+
+.form-control {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1; /* slate-300 */
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+textarea.form-control {
+  resize: vertical;
+}
+
+.stepper {
+  background:#0f172a;
+  color:#fff;
+  padding:20px;
+  border-top-left-radius:16px;
+  border-bottom-left-radius:16px;
+}
+
+.stepper h3 {
+  margin-top:0;
+}
+
+.stepper ol {
+  list-style:none;
+  padding:0;
+  margin:0;
+  display:grid;
+  gap:10px;
+}
+
+.stepper li {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  opacity:.6;
+}
+
+.stepper li.active {
+  opacity:1;
+}
+
+.stepper li span:first-child {
+  display:grid;
+  place-items:center;
+  width:24px;
+  height:24px;
+  border-radius:999px;
+  background:#fff;
+  color:#0f172a;
+  font-weight:700;
+}
