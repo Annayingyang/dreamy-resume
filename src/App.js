@@ -7,7 +7,7 @@ import Home from "./pages/Home";
 import FAQs from "./pages/FAQs";
 import InterviewTips from "./pages/InterviewTips";
 import Account from "./pages/Account";
-import ResumeBuilder from "./pages/ResumeBuilder";
+
 
 // NEW imports
 import CreateCV from "./pages/CreateCV";
@@ -27,7 +27,7 @@ export default function App() {
           <Route path="/faqs" element={<FAQs />} />
           <Route path="/interview" element={<InterviewTips />} />
           <Route path="/account" element={<Account />} />
-          <Route path="/builder" element={<ResumeBuilder />} />
+          
         </Routes>
       </main>
       <Footer />

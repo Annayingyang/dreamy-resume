@@ -1,13 +1,13 @@
-/* src/style/Home.css */
 
-/* ===== PAGE CONTAINER (Home only) ===== */
+
+
 .home {
   max-width: 1100px;
   margin: 0 auto;
   padding-inline: 16px;
 }
 
-/* Keep Home cards neatly clipped inside rounded corners */
+
 .home .card { overflow: clip; }
 
 /* ===== HERO ===== */
@@ -16,7 +16,7 @@
   grid-template-columns: 1.05fr 0.95fr;
   gap: 24px;
   align-items: center;
-  margin: 20px 0 28px; /* unified rhythm */
+  margin: 20px 0 28px; 
 }
 
 .hero-left {
@@ -26,7 +26,7 @@
 }
 
 .eyebrow {
-  color: #1d4ed8; /* slightly deeper blue for contrast */
+  color: #1d4ed8; 
   font-weight: 700;
   letter-spacing: .015em;
   margin: 0 0 4px;
@@ -51,11 +51,11 @@
   justify-content: center;
 }
 
-/* Hero CV preview box — responsive with aspect-ratio */
+
 .hero-cv {
   width: 100%;
   max-width: 520px;
-  aspect-ratio: 13 / 10;     /* replaces fixed height */
+  aspect-ratio: 13 / 10;     
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--ring);
@@ -63,7 +63,7 @@
   object-position: center top;
 }
 
-/* Decorative shapes with a gentle float */
+
 .hero-shapes {
   position: absolute;
   inset: auto 0 -20px 0;
@@ -83,7 +83,7 @@
   .hero-shapes { animation: none; }
 }
 
-/* Call-to-action row */
+
 .cta-row {
   display: flex;
   gap: 12px;
@@ -91,20 +91,20 @@
   margin-top: 8px;
 }
 
-/* ===== FEATURE STRIP ===== */
+
 .feature {
   display: grid;
   grid-template-columns: 0.95fr 1.05fr;
   gap: 24px;
   align-items: center;
-  margin: 10px 0 24px; /* unified rhythm */
+  margin: 10px 0 24px; 
 }
 
-/* Feature illustration (carousel image area) */
+
 .feature-illus img {
   width: 100%;
   max-width: 520px;
-  aspect-ratio: 26 / 15;     /* replaces fixed 300px height */
+  aspect-ratio: 26 / 15;     
   border-radius: 16px;
   border: 1px solid var(--ring);
   object-fit: cover;
@@ -147,7 +147,7 @@
   font-weight: 800;
 }
 
-/* Carousel dots (still using your .btn base styles) */
+
 .carousel-dots {
   display: flex;
   gap: 8px;
@@ -164,32 +164,35 @@
   outline: 2px solid #2563eb; outline-offset: 2px;   /* keyboard a11y */
 }
 
-/* ===== STEPS ===== */
+
 .steps {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
-  margin: 24px 0; /* unified rhythm */
+  margin: 24px 0; 
 }
 
-/* Make the section heading span all columns so no empty cell appears */
 .steps > h2 { 
   grid-column: 1 / -1; 
   margin: 0 0 10px; 
 }
 
-/* Step preview image — responsive with aspect-ratio */
 .step-img {
   width: 100%;
-  aspect-ratio: 2 / 1;       /* replaces fixed 200px height */
+  aspect-ratio: 2 / 1;       
   border-radius: 12px;
   border: 1px solid var(--ring);
   margin-bottom: 8px;
   object-fit: cover;
 }
 
-/* Bottom CTAs */
-.bottom-ctas { margin-top: 10px; }
+.bottom-ctas {
+  display: flex;           
+  justify-content: center; 
+  width: 100%;             
+  margin-top: 10px;        
+}
+
 
 /* GENERAL IMAGE SAFEGUARD */
 .home img {
