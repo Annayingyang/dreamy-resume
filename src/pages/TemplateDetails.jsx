@@ -444,7 +444,7 @@ export default function TemplateDetails() {
 
         {/* LIVE PREVIEW */}
         <section style={{ marginTop: 24 }}>
-          <TemplatePreview data={templateData} initialTemplate={tplId} hideSelector />
+          <TemplatePreview data={templateData} initialTemplate={tplId} />
         </section>
       </main>
     </section>

@@ -9,15 +9,14 @@ import React from "react";
  *      skills?: (string | { name: string, level?: 1|2|3|4|5 })[],
  *      experience?: { title, company, dates, location?, points: string[] }[],
  *      education?: { line: string }[],
- *      tags?: string[],              // optional small chips under role
- *      avatarUrl?: string            // optional round avatar in header
+ *      tags?: string[],
+ *      avatarUrl?: string, // legacy support
+ *      photo?: string      // NEW: base64 from TemplateDetails
  *    }
- *  - options?: {
- *      accent?: string,              // hex or css color, default "#22d3ee"
- *      subtleAccent?: string         // for gradients, default derived
- *    }
+ *  - options?: { accent?: string, subtleAccent?: string }
+ *  - Avatar?: (from TemplatePreview) helper to render a styled headshot
  */
-export default function CharcoalPro({ data, options = {} }) {
+export default function CharcoalPro({ data, options = {}, Avatar }) {
   const {
     fullName = "Your Name",
     role = "Your Role Title",
@@ -27,24 +26,16 @@ export default function CharcoalPro({ data, options = {} }) {
     experience = [],
     education = [],
     tags = [],
-    avatarUrl,
+    avatarUrl, // legacy
+    photo,     // new
   } = data || {};
 
   const accent = options.accent || "#22d3ee";       // cyan
   const subtle = options.subtleAccent || "rgba(34, 211, 238, 0.25)";
+  const photoSrc = photo || avatarUrl; // prefer new photo
 
   // Helpers
-  const SkillItem = ({ item }) => {
-    // Accept "JavaScript" or { name: "JavaScript", level: 4 }
-    const name = typeof item === "string" ? item : item?.name;
-    const level = typeof item === "string" ? undefined : clamp(item?.level, 1, 5);
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <span style={{ fontSize: 13, color: "#e5e7eb" }}>{name}</span>
-        {level ? <Dots level={level} accent={accent} /> : null}
-      </div>
-    );
-  };
+  function clamp(v, min, max){ if(typeof v!=="number") return undefined; return Math.max(min, Math.min(max, v)); }
 
   const Dots = ({ level, accent }) => (
     <div style={{ display: "flex", gap: 4 }}>
@@ -61,7 +52,16 @@ export default function CharcoalPro({ data, options = {} }) {
     </div>
   );
 
-  function clamp(v, min, max){ if(typeof v!=="number") return undefined; return Math.max(min, Math.min(max, v)); }
+  const SkillItem = ({ item }) => {
+    const name = typeof item === "string" ? item : item?.name;
+    const level = typeof item === "string" ? undefined : clamp(item?.level, 1, 5);
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        <span style={{ fontSize: 13, color: "#e5e7eb" }}>{name}</span>
+        {level ? <Dots level={level} accent={accent} /> : null}
+      </div>
+    );
+  };
 
   const Badge = ({ children }) => (
     <span
@@ -96,7 +96,7 @@ export default function CharcoalPro({ data, options = {} }) {
         {!isLast && (
           <span style={{
             position: "absolute", left: 6, top: 22, bottom: -6, width: 2,
-            background: "linear-gradient(to bottom, "+accent+", transparent 80%)", opacity: 0.5
+            background: `linear-gradient(to bottom, ${accent}, transparent 80%)`, opacity: 0.5
           }}/>
         )}
       </div>
@@ -129,13 +129,12 @@ export default function CharcoalPro({ data, options = {} }) {
       style={{
         width: "794px",
         minHeight: "1123px",
-        background: "#0b0f16", // deep charcoal
+        background: "#0b0f16",
         color: "#e5e7eb",
         boxSizing: "border-box",
         padding: 32,
         fontFamily:
           "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji','Segoe UI Emoji'",
-        // Subtle border glow
         boxShadow: `inset 0 0 0 1px #1f2937, 0 0 24px rgba(0,0,0,.35)`,
         position: "relative",
       }}
@@ -186,19 +185,23 @@ export default function CharcoalPro({ data, options = {} }) {
         </div>
 
         {/* Avatar (optional) */}
-        {avatarUrl ? (
-          <div
-            style={{
-              width: 84, height: 84, borderRadius: 999, overflow: "hidden",
-              border: `2px solid ${accent}`, boxShadow: `0 0 22px ${subtle}`,
-            }}
-          >
-            <img
-              src={avatarUrl}
-              alt=""
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            />
-          </div>
+        {photoSrc ? (
+          Avatar ? (
+            <Avatar src={photoSrc} size={84} shape="circle" alt={`${fullName} photo`} />
+          ) : (
+            <div
+              style={{
+                width: 84, height: 84, borderRadius: 999, overflow: "hidden",
+                border: `2px solid ${accent}`, boxShadow: `0 0 22px ${subtle}`,
+              }}
+            >
+              <img
+                src={photoSrc}
+                alt=""
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
+            </div>
+          )
         ) : null}
       </header>
 
@@ -320,9 +323,7 @@ function sectionTitleStyle(accent){
     position: "relative",
     paddingLeft: 10,
     fontWeight: 700,
-    // tiny accent bar
     textShadow: "0 0 1px rgba(0,0,0,.4)",
-    // left bar
     borderLeft: `3px solid ${accent}`,
   };
 }

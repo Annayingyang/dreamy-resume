@@ -10,15 +10,17 @@ import React from "react";
  *      experience?: { title, company, dates, location?, points: string[] }[],
  *      education?: { line: string }[],
  *      tags?: string[],
- *      avatarUrl?: string
+ *      avatarUrl?: string, // legacy support
+ *      photo?: string      // NEW: base64 from TemplateDetails
  *    }
  *  - options?: {
  *      coral?: string,   // main accent (default "#fb7185")
  *      peach?: string,   // secondary accent (default "#fdba74")
  *      sun?: string,     // highlight glow (default "#fde047")
  *    }
+ *  - Avatar?: optional headshot renderer injected by TemplatePreview
  */
-export default function CoralWarm({ data = {}, options = {} }) {
+export default function CoralWarm({ data = {}, options = {}, Avatar }) {
   const {
     fullName = "Your Name",
     role = "Your Role Title",
@@ -28,7 +30,8 @@ export default function CoralWarm({ data = {}, options = {} }) {
     experience = [],
     education = [],
     tags = [],
-    avatarUrl,
+    avatarUrl, // legacy
+    photo,     // new
   } = data;
 
   const coral = options.coral || "#fb7185"; // rose-coral
@@ -145,6 +148,8 @@ export default function CoralWarm({ data = {}, options = {} }) {
     </div>
   );
 
+  const photoSrc = photo || avatarUrl; // prefer new photo
+
   return (
     <div style={{
       width: 794, minHeight: 1123, boxSizing: "border-box",
@@ -191,15 +196,26 @@ export default function CoralWarm({ data = {}, options = {} }) {
             </div>
           )}
         </div>
-        {avatarUrl ? (
-          <div style={{
-            width: 88, height: 88, borderRadius: 24, overflow: "hidden",
-            background: "#fff",
-            border: `2px solid ${hexToRgba(peach,.8)}`,
-            boxShadow: `0 12px 28px ${hexToRgba(sun,.25)}`
-          }}>
-            <img src={avatarUrl} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}/>
-          </div>
+
+        {/* Avatar (optional) */}
+        {photoSrc ? (
+          Avatar ? (
+            <Avatar src={photoSrc} size={88} shape="rounded" alt={`${fullName} photo`} />
+          ) : (
+            <div style={{
+              width: 88, height: 88,
+              borderRadius: 24, overflow: "hidden",
+              background: "#fff",
+              border: `2px solid ${hexToRgba(peach,.8)}`,
+              boxShadow: `0 12px 28px ${hexToRgba(sun,.25)}`,
+            }}>
+              <img
+                src={photoSrc}
+                alt=""
+                style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
+              />
+            </div>
+          )
         ) : null}
       </header>
 
