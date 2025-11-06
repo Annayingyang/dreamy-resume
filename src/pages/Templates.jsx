@@ -266,7 +266,11 @@ export default function Templates() {
       {/* grid */}
       <div className="tpl-grid">
         {templates.map(t => (
-          <article key={t.id} className="tpl-card card">
+          <article
+  key={t.id}
+  className={`tpl-card card ${t.recommended ? "recommended" : ""}`}
+>
+
             <div className="thumb-wrap">
               <img src={t.thumb} alt={`${t.name} preview`} />
               {t.recommended && <span className="badge-reco">Recommended</span>}

@@ -218,7 +218,9 @@
 .templates .profile-intro em {
   font-style: normal;
   background: linear-gradient(90deg, #ec4899, #f59e0b);
-  -webkit-background-clip: text;
+  background-clip: text;
+-webkit-background-clip: text;
+
   -webkit-text-fill-color: transparent;
 }
 
@@ -289,3 +291,47 @@
 .mini-pill.cat-fun          { border-color:#ffd1ec; background:#fff2fb; }
 .mini-pill.cat-elegant      { border-color:#e5e7eb; background:#f8fafc; }
 .mini-pill.cat-unique       { border-color:#fde68a; background:#fffbeb; }
+
+/*   Recommended badge  */
+
+.badge-reco {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: linear-gradient(135deg, #fdd6f0, #ffc7d9, #d7c6ff);
+  color: #4a2c5a;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(255, 180, 220, 0.8);
+  animation: pulseGlow 2.2s ease-in-out infinite;
+}
+
+/* Soft pulse for the badge */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 180, 220, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 150, 200, 0.9);
+    transform: scale(1.05);
+  }
+}
+
+
+/*  Highlighted card  */
+
+.tpl-card.recommended {
+  border: 2px solid #ffb6d0;
+  box-shadow: 0 0 16px rgba(255, 182, 208, 0.6);
+  transform: translateY(-4px);
+  transition: all 0.3s ease;
+}
+
+/* hover polish */
+.tpl-card.recommended:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 0 22px rgba(255, 182, 208, 0.8);
+}
