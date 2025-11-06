@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/dreamy-resume/static/css/main.8eb5e9bc.css",
-    "main.js": "/dreamy-resume/static/js/main.6f106dbd.js",
+    "main.css": "/dreamy-resume/static/css/main.2ad82833.css",
+    "main.js": "/dreamy-resume/static/js/main.1f4359d7.js",
     "static/js/977.413cad0f.chunk.js": "/dreamy-resume/static/js/977.413cad0f.chunk.js",
     "static/js/455.833d3a09.chunk.js": "/dreamy-resume/static/js/455.833d3a09.chunk.js",
     "index.html": "/dreamy-resume/index.html",
-    "main.8eb5e9bc.css.map": "/dreamy-resume/static/css/main.8eb5e9bc.css.map",
-    "main.6f106dbd.js.map": "/dreamy-resume/static/js/main.6f106dbd.js.map",
+    "main.2ad82833.css.map": "/dreamy-resume/static/css/main.2ad82833.css.map",
+    "main.1f4359d7.js.map": "/dreamy-resume/static/js/main.1f4359d7.js.map",
     "977.413cad0f.chunk.js.map": "/dreamy-resume/static/js/977.413cad0f.chunk.js.map",
     "455.833d3a09.chunk.js.map": "/dreamy-resume/static/js/455.833d3a09.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.8eb5e9bc.css",
-    "static/js/main.6f106dbd.js"
+    "static/css/main.2ad82833.css",
+    "static/js/main.1f4359d7.js"
   ]
 }
