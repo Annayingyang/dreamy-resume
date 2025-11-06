@@ -1,7 +1,9 @@
 import React from "react";
 
 /**
- * NeonRiot — riot of color (A4 794x1123), same data shape:
+ * NeonRiot — riot of color (A4 794x1123)
+ * Now with photo-left layout and Avatar injection support.
+ *
  * data = {
  *   fullName, role, summary,
  *   contacts?: string[],
@@ -9,11 +11,13 @@ import React from "react";
  *   experience?: { title, company, dates, location?, points: string[] }[],
  *   education?: { line: string }[],
  *   tags?: string[],
- *   avatarUrl?: string
+ *   avatarUrl?: string,  // legacy
+ *   photo?: string       // NEW (base64 or URL)
  * }
  * options = { palette?: number } // 0..3 (choose a palette)
+ * Avatar?: optional headshot renderer injected by TemplatePreview
  */
-export default function NeonRiot({ data = {}, options = {} }) {
+export default function NeonRiot({ data = {}, options = {}, Avatar }) {
   const {
     fullName = "Your Name",
     role = "Your Role Title",
@@ -24,26 +28,42 @@ export default function NeonRiot({ data = {}, options = {} }) {
     education = [],
     tags = [],
     avatarUrl,
+    photo, // NEW
   } = data;
 
   const palettes = [
-    { a: "#ff1d8e", b: "#00f0ff", c: "#ffd300", d: "#7cff00", ink: "#0a0a0a", sub: "#2b2b2b" }, // magenta/cyan/yellow/lime
-    { a: "#00ff94", b: "#ff6b6b", c: "#845ef7", d: "#ffe066", ink: "#0a0a0a", sub: "#2b2b2b" }, // neon mint/rose/violet/sun
-    { a: "#ff9f1c", b: "#2ec4b6", c: "#e71d36", d: "#9b5de5", ink: "#0a0a0a", sub: "#2b2b2b" }, // orange/teal/red/purple
-    { a: "#22d3ee", b: "#f472b6", c: "#a3e635", d: "#fb923c", ink: "#0a0a0a", sub: "#2b2b2b" }, // aqua/pink/lime/orange
+    { a: "#ff1d8e", b: "#00f0ff", c: "#ffd300", d: "#7cff00", ink: "#0a0a0a", sub: "#2b2b2b" },
+    { a: "#00ff94", b: "#ff6b6b", c: "#845ef7", d: "#ffe066", ink: "#0a0a0a", sub: "#2b2b2b" },
+    { a: "#ff9f1c", b: "#2ec4b6", c: "#e71d36", d: "#9b5de5", ink: "#0a0a0a", sub: "#2b2b2b" },
+    { a: "#22d3ee", b: "#f472b6", c: "#a3e635", d: "#fb923c", ink: "#0a0a0a", sub: "#2b2b2b" },
   ];
   const palette = palettes[Math.max(0, Math.min(palettes.length - 1, Number.isFinite(options.palette) ? options.palette : 0))];
 
   const R = 16; // spacing rhythm
+  const photoSrc = photo || avatarUrl; // prefer new photo
 
   return (
     <div style={pageWrap(palette)}>
       {/* neon frame */}
       <div style={frameGlow(palette)} />
 
-      {/* header */}
+      {/* header — PHOTO LEFT */}
       <header style={headerBox(palette)}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 12, alignItems: "center" }}>
+          {/* Photo left (optional) */}
+          {photoSrc ? (
+            Avatar ? (
+              <Avatar src={photoSrc} size={88} shape="rounded" alt={`${fullName} photo`} />
+            ) : (
+              <div style={avatarRing(palette)}>
+                <img alt="" src={photoSrc} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              </div>
+            )
+          ) : (
+            <div style={{ width: 0, height: 0 }} /> // keeps grid alignment if no photo
+          )}
+
+          {/* Name, role, tags */}
           <div>
             <h1 style={h1(palette)}>{fullName}</h1>
             <div style={{ marginTop: 4, color: palette.sub, fontSize: 15 }}>{role}</div>
@@ -55,11 +75,6 @@ export default function NeonRiot({ data = {}, options = {} }) {
               </div>
             )}
           </div>
-          {avatarUrl ? (
-            <div style={avatarRing(palette)}>
-              <img alt="" src={avatarUrl} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            </div>
-          ) : null}
         </div>
       </header>
 

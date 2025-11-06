@@ -1,6 +1,23 @@
 import React from "react";
 
-export default function NotionBlocks({ data = {}, options = {} }) {
+/**
+ * NotionBlocks — lavender block aesthetic, A4 (794x1123)
+ *
+ * Props:
+ *  - data: {
+ *      fullName, role, summary,
+ *      contacts?: string[],
+ *      skills?: (string | { name: string, level?: 1|2|3|4|5 })[],
+ *      experience?: { title, company, dates, location?, points: string[] }[],
+ *      education?: { line: string }[],
+ *      tags?: string[],
+ *      avatarUrl?: string,  // legacy
+ *      photo?: string       // NEW: base64/URL
+ *    }
+ *  - options?: { accent?: string }  // override accent color
+ *  - Avatar?: optional headshot renderer injected by TemplatePreview
+ */
+export default function NotionBlocks({ data = {}, options = {}, Avatar }) {
   const {
     fullName = "Your Name",
     role = "Your Role Title",
@@ -11,12 +28,15 @@ export default function NotionBlocks({ data = {}, options = {} }) {
     education = [],
     tags = [],
     avatarUrl,
+    photo,
   } = data;
 
   const accent = options.accent || "#a78bfa"; // lavender
   const sub = "#5b4e8f";
   const ink = "#1a103c";
   const R = 16;
+
+  const photoSrc = photo || avatarUrl; // prefer new photo
 
   return (
     <div style={pageWrap(accent)}>
@@ -37,10 +57,20 @@ export default function NotionBlocks({ data = {}, options = {} }) {
               </div>
             )}
           </div>
-          {avatarUrl ? (
-            <div style={avatarRing(accent)}>
-              <img alt="" src={avatarUrl} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            </div>
+
+          {/* Pretty profile picture (optional) */}
+          {photoSrc ? (
+            Avatar ? (
+              <Avatar src={photoSrc} size={86} shape="rounded" alt={`${fullName} photo`} />
+            ) : (
+              <div style={avatarRing(accent)}>
+                <img
+                  alt=""
+                  src={photoSrc}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+              </div>
+            )
           ) : null}
         </div>
       </header>

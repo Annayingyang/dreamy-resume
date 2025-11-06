@@ -10,11 +10,13 @@ import React from "react";
  *      experience?: { title, company, dates, location?, points: string[] }[],
  *      education?: { line: string }[],
  *      tags?: string[],
- *      avatarUrl?: string
+ *      avatarUrl?: string, // legacy
+ *      photo?: string      // NEW: base64/URL
  *    }
  *  - options?: { accent?: string }  // override accent color
+ *  - Avatar?: optional headshot renderer injected by TemplatePreview
  */
-export default function OrchidMagazine({ data = {}, options = {} }) {
+export default function OrchidMagazine({ data = {}, options = {}, Avatar }) {
   const {
     fullName = "Your Name",
     role = "Your Role Title",
@@ -25,7 +27,10 @@ export default function OrchidMagazine({ data = {}, options = {} }) {
     education = [],
     tags = [],
     avatarUrl,
+    photo,
   } = data;
+
+  const photoSrc = photo || avatarUrl; // prefer new photo
 
   const accent = options.accent || "#b794f4"; // orchid lavender
   const ink = "#261447";
@@ -93,7 +98,6 @@ export default function OrchidMagazine({ data = {}, options = {} }) {
       border: "1px solid #ede9fe",
       boxShadow:
         "0 10px 30px rgba(80, 52, 150, 0.08), inset 0 0 0 1px rgba(255,255,255,0.6)",
-      // gradient top edge (ribbon)
       position: "relative",
     }}>
       <div style={{
@@ -143,13 +147,21 @@ export default function OrchidMagazine({ data = {}, options = {} }) {
                 }}>{fullName}</h1>
                 <div style={{ marginTop: 6, color: sub, fontSize: 14 }}>{role}</div>
               </div>
-              {avatarUrl ? (
-                <div style={{
-                  width: 64, height: 64, borderRadius: 16, overflow: "hidden",
-                  border: `1px solid ${hexToRgba("#c7b7ff", .7)}`, background: "#fff"
-                }}>
-                  <img src={avatarUrl} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
-                </div>
+
+              {/* Pretty profile picture (optional) */}
+              {photoSrc ? (
+                Avatar ? (
+                  <Avatar src={photoSrc} size={64} shape="rounded" alt={`${fullName} photo`} />
+                ) : (
+                  <div style={{
+                    width: 64, height: 64, borderRadius: 16, overflow: "hidden",
+                    border: `1px solid ${hexToRgba("#c7b7ff", .7)}`,
+                    background: "#fff",
+                    boxShadow: `0 0 0 3px ${hexToRgba("#c7b7ff", .18)}, 0 10px 22px ${hexToRgba(accent,.25)}`
+                  }}>
+                    <img src={photoSrc} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
+                  </div>
+                )
               ) : null}
             </div>
 
