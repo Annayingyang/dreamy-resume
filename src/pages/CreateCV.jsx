@@ -1,3 +1,4 @@
+// src/pages/CreateCV.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/createCV.css";
@@ -15,7 +16,7 @@ const defaultData = {
   experience: "",
   job: "Design",      // “what is your job”
   color: "mint",      // “vibe / color”
-  font: "Inter",
+  tone: "professional"// “style tone”
 };
 
 const stepsDef = [
@@ -24,7 +25,7 @@ const stepsDef = [
   { id: "role",       title: "Target role / title",    required: true,  type: "text",     placeholder: "e.g. Junior Designer" },
   { id: "experience", title: "Years of experience",    required: true,  type: "number",   placeholder: "e.g. 2" },
   { id: "job",        title: "Your field",             required: true,  type: "select",   options: ["Design","Marketing","HR","Software","Admin","Sales","Finance","Education"] },
-  { id: "style",      title: "Pick your vibe",         required: true,  type: "style"     }, // color + font
+  { id: "style",      title: "Pick your vibe & tone",  required: true,  type: "style"     }, // color + tone
   { id: "review",     title: "Review & continue",      required: false, type: "review"    },
 ];
 
@@ -44,30 +45,52 @@ function useLocalState(key, initial) {
   return [value, setValue];
 }
 
-/* ---------- simple recommender by vibe + field ---------- */
+/* ---------- recommender by color + tone + field ---------- */
 function recommendTemplates(prefs) {
-  // base list
-  const all = ["pastel", "mint", "dark"];
-  // vibe-weighted order
-  let vibeFirst = all;
-  if (prefs.color === "mint") vibeFirst = ["mint", "pastel", "dark"];
-  if (prefs.color === "pink") vibeFirst = ["pastel", "mint", "dark"];
-  if (prefs.color === "lavender") vibeFirst = ["pastel", "dark", "mint"];
-  if (prefs.color === "peach") vibeFirst = ["pastel", "mint", "dark"];
+  // keep in sync with your Templates.jsx ids
+  const all = [
+    "pastel", "mint", "dark", "serif-cream", "modern-sky",
+    "charcoal-pro", "lavender-glow", "coral-warm", "slate-columns",
+    "photo-left", "notion-blocks"
+  ];
 
-  // field nuance (just a tiny nudge)
+  // color weights (first = strongest)
+  const colorOrder = {
+    mint:          ["mint","modern-sky","serif-cream","pastel","slate-columns","charcoal-pro","dark","lavender-glow","coral-warm","notion-blocks","photo-left"],
+    pink:          ["pastel","lavender-glow","coral-warm","serif-cream","modern-sky","mint","notion-blocks","slate-columns","photo-left","charcoal-pro","dark"],
+    lavender:      ["lavender-glow","pastel","serif-cream","modern-sky","mint","notion-blocks","slate-columns","photo-left","coral-warm","charcoal-pro","dark"],
+    peach:         ["coral-warm","pastel","serif-cream","mint","modern-sky","notion-blocks","slate-columns","photo-left","lavender-glow","charcoal-pro","dark"],
+    sky:           ["modern-sky","mint","serif-cream","slate-columns","pastel","photo-left","notion-blocks","lavender-glow","coral-warm","charcoal-pro","dark"],
+    charcoal:      ["charcoal-pro","dark","slate-columns","modern-sky","notion-blocks","serif-cream","mint","pastel","photo-left","coral-warm","lavender-glow"],
+    cream:         ["serif-cream","slate-columns","notion-blocks","modern-sky","mint","pastel","photo-left","charcoal-pro","dark","lavender-glow","coral-warm"],
+    slate:         ["slate-columns","serif-cream","charcoal-pro","notion-blocks","modern-sky","mint","dark","photo-left","pastel","lavender-glow","coral-warm"]
+  };
+
+  // tone weights
+  const toneOrder = {
+    professional: ["slate-columns","serif-cream","charcoal-pro","dark","modern-sky","mint","notion-blocks","photo-left","pastel","coral-warm","lavender-glow"],
+    creative:     ["pastel","lavender-glow","notion-blocks","photo-left","modern-sky","mint","coral-warm","serif-cream","slate-columns","charcoal-pro","dark"],
+    bold:         ["charcoal-pro","dark","modern-sky","slate-columns","mint","photo-left","notion-blocks","pastel","serif-cream","coral-warm","lavender-glow"],
+    minimal:      ["serif-cream","slate-columns","mint","modern-sky","notion-blocks","dark","charcoal-pro","photo-left","pastel","lavender-glow","coral-warm"]
+  };
+
+  // field “nudges”
   let fieldBoost = [];
   switch ((prefs.job || "").toLowerCase()) {
-    case "design":   fieldBoost = ["pastel","mint"]; break;
-    case "marketing":fieldBoost = ["pastel","dark"]; break;
-    case "hr":       fieldBoost = ["mint","pastel"]; break;
-    case "software": fieldBoost = ["dark","mint"];   break;
-    case "finance":  fieldBoost = ["dark","mint"];   break;
-    default:         fieldBoost = [];
+    case "design":    fieldBoost = ["pastel","modern-sky","notion-blocks","photo-left","lavender-glow"]; break;
+    case "marketing": fieldBoost = ["pastel","coral-warm","modern-sky","notion-blocks"]; break;
+    case "software":  fieldBoost = ["slate-columns","charcoal-pro","dark","modern-sky"]; break;
+    case "finance":   fieldBoost = ["slate-columns","serif-cream","charcoal-pro","dark"]; break;
+    case "hr":        fieldBoost = ["serif-cream","mint","slate-columns"]; break;
+    case "education": fieldBoost = ["serif-cream","mint","modern-sky"]; break;
+    default:          fieldBoost = [];
   }
 
-  // merge with uniqueness
-  const ordered = Array.from(new Set([...fieldBoost, ...vibeFirst, ...all]));
+  const byColor = colorOrder[prefs.color] || all;
+  const byTone  = toneOrder[prefs.tone]   || all;
+
+  // Merge into a single ordered unique list (field nudges first)
+  const ordered = Array.from(new Set([...fieldBoost, ...byTone, ...byColor, ...all]));
   return { ordered, all };
 }
 
@@ -76,12 +99,9 @@ function recommendTemplates(prefs) {
    ======================================= */
 export default function CreateCV() {
   const navigate = useNavigate();
+  const { setCvPrefs } = useApp(); // safe if provided
 
-  // ✅ if you have AppContext, this works
-  // make sure AppContext provides a default value with setCvPrefs: () => {}
-  const { setCvPrefs } = useApp();
-
-  // rest of your states
+  // state
   const [data, setData] = useLocalState(LS_FORM, defaultData);
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState("forward");
@@ -89,14 +109,32 @@ export default function CreateCV() {
   const [error, setError] = useState("");
   const current = stepsDef[index];
 
+  // live-sync CreateCV answers into prefs so other pages can auto-fill
+useEffect(() => {
+  const t = setTimeout(() => {
+    const prefs = {
+      name: (data.name || "").trim(),
+      email: (data.email || "").trim(),
+      role: (data.role || "").trim(),
+      experience: String(data.experience ?? "").trim(),
+      job: data.job,
+      color: data.color,
+      tone: data.tone,
+    };
+    try { localStorage.setItem(LS_PREFS, JSON.stringify(prefs)); } catch {}
+    setCvPrefs?.(prefs);
+  }, 200); // debounce a bit so we don't spam storage
+  return () => clearTimeout(t);
+}, [data.name, data.email, data.role, data.experience, data.job, data.color, data.tone, setCvPrefs]);
 
-  // tiny loader on mount
+
+  // tiny loader
   useEffect(() => {
     const t = setTimeout(() => setBusy(false), 280);
     return () => clearTimeout(t);
   }, []);
 
-  // focus title on step change (a11y)
+  // a11y focus on step change
   const focusRef = useRef(null);
   useEffect(() => { focusRef.current?.focus(); }, [index]);
 
@@ -117,7 +155,11 @@ export default function CreateCV() {
         if (!Number.isFinite(n) || n < 0) { setError("Enter a non-negative number."); return false; }
         return true;
       }
-      const val = s.id === "style" ? d.color && d.font : d[s.id];
+      if (s.id === "style") {
+        if (!d.color || !d.tone) { setError("Please pick a color and a tone."); return false; }
+        return true;
+      }
+      const val = d[s.id];
       if (!val || (typeof val === "string" && !val.trim())) {
         setError("This field is required.");
         return false;
@@ -131,10 +173,8 @@ export default function CreateCV() {
   const onPrev = () => { if (index > 0) go(index - 1); };
 
   const onFinish = () => {
-    // last real validation is style
     if (!validate(stepsDef[stepsDef.length - 2], data)) return;
 
-    // Build compact prefs to share with Templates page
     const prefs = {
       name: data.name.trim(),
       email: data.email.trim(),
@@ -142,18 +182,16 @@ export default function CreateCV() {
       experience: String(data.experience).trim(),
       job: data.job,
       color: data.color,
-      font: data.font,
+      tone: data.tone, // NEW
+      // no font anymore
     };
 
-    // Compute template recommendations (order)
     const reco = recommendTemplates(prefs);
 
-    // Persist
     try { localStorage.setItem(LS_PREFS, JSON.stringify(prefs)); } catch {}
     try { localStorage.setItem(LS_RECO, JSON.stringify(reco)); } catch {}
-    setCvPrefs?.(prefs); // optional: put into global Context if available
+    setCvPrefs?.(prefs);
 
-    // Go to Templates — it will read LS_PREFS + LS_RECO to prefill & tag “Recommended”
     navigate("/templates", { state: { fromCreate: true } });
   };
 
@@ -203,7 +241,7 @@ export default function CreateCV() {
       {/* Live mini preview */}
       <aside className="mini-preview card" aria-label="Live preview">
         <h3>Live preview</h3>
-        <div className={`preview-doc theme-${data.color} font-${(data.font || "Inter").toLowerCase()}`}>
+        <div className={`preview-doc theme-${data.color}`}>
           <header>
             <strong>{data.name || "Your Name"}</strong>
             <span>{data.role || "Target role"}</span>
@@ -212,7 +250,7 @@ export default function CreateCV() {
           <p className="muted">Experience: {data.experience || "0"} yrs — {data.job || "Field"}</p>
           <ul className="pill-list">
             <li>Vibe: {data.color}</li>
-            <li>Font: {data.font}</li>
+            <li>Tone: {data.tone}</li>
           </ul>
         </div>
       </aside>
@@ -254,8 +292,13 @@ function StepContent({ step, data, onInput }) {
   }
 
   if (step.type === "style") {
-    const colors = ["mint", "pink", "lavender", "peach"];
-    const fonts  = ["Inter", "Poppins", "OpenSans", "Merriweather"];
+    const colors = ["mint","pink","lavender","peach","sky","charcoal","cream","slate","coral"];
+    const tones  = [
+      { id: "professional", label: "Professional" },
+      { id: "creative",     label: "Creative" },
+      { id: "bold",         label: "Bold" },
+      { id: "minimal",      label: "Minimal" },
+    ];
     return (
       <div className="style-grid">
         <fieldset className="seg">
@@ -275,15 +318,23 @@ function StepContent({ step, data, onInput }) {
           </div>
         </fieldset>
 
-        <label className="field">
-          <span className="label">Font family</span>
-          <select
-            value={data.font}
-            onChange={(e) => onInput("font", e.target.value)}
-          >
-            {fonts.map(f => <option key={f} value={f}>{f}</option>)}
-          </select>
-        </label>
+        <fieldset className="seg">
+          <legend className="label">Tone</legend>
+          <div className="tone-row">
+            {tones.map(t => (
+              <label key={t.id} className={`tone ${data.tone === t.id ? "is-selected" : ""}`}>
+                <input
+                  type="radio"
+                  name="tone"
+                  value={t.id}
+                  checked={data.tone === t.id}
+                  onChange={() => onInput("tone", t.id)}
+                />
+                <span>{t.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
       </div>
     );
   }
@@ -292,8 +343,8 @@ function StepContent({ step, data, onInput }) {
     return (
       <div className="review">
         <p>
-          We’ll carry your answers to the Templates page and mark the <strong>Recommended</strong> options based on your vibe and field.
-          You can still choose any design you like.
+          We’ll carry your answers to the Templates page and mark the <strong>Recommended</strong> options
+          based on your vibe, tone and field. You can still choose any design you like.
         </p>
         <ul className="review-list">
           <li><span>Name</span><b>{data.name || "—"}</b></li>
@@ -302,7 +353,7 @@ function StepContent({ step, data, onInput }) {
           <li><span>Experience</span><b>{data.experience || "—"} yrs</b></li>
           <li><span>Field</span><b>{data.job || "—"}</b></li>
           <li><span>Vibe</span><b>{data.color || "—"}</b></li>
-          <li><span>Font</span><b>{data.font || "—"}</b></li>
+          <li><span>Tone</span><b>{data.tone || "—"}</b></li>
         </ul>
       </div>
     );

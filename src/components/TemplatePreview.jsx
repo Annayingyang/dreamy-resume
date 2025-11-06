@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
@@ -15,6 +15,27 @@ import SlateColumns from "../templates/SlateColumns";
 import PhotoLeft from "../templates/PhotoLeft";
 import NotionBlocks from "../templates/NotionBlocks";
 
+// --- Reusable avatar for all templates ---
+function Avatar({ src, size = 96, shape = "circle", alt = "Profile photo" }) {
+  if (!src) return null;
+  const radius = shape === "circle" ? "999px" : shape === "rounded" ? "16px" : "0px";
+  return (
+    <img
+      src={src}
+      alt={alt}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: radius,
+        objectFit: "cover",
+        display: "block",
+        border: "2px solid rgba(197,182,245,0.45)",
+        boxShadow: "0 4px 12px rgba(197,182,245,0.25)",
+        background: "#fff",
+      }}
+    />
+  );
+}
 
 // Map template ids to components
 const TEMPLATE_MAP = {
@@ -45,15 +66,23 @@ const TEMPLATE_OPTIONS = [
   { value: "notion-blocks", label: "Notion Blocks" },
 ];
 
-export default function TemplatePreview({ data, initialTemplate = "pastel" }) {
+export default function TemplatePreview({ data, initialTemplate = "pastel", hideSelector = false }) {
   const [template, setTemplate] = useState(initialTemplate);
   const printRef = useRef(null);
+
+  // keep in sync if parent changes the initial template (e.g., via URL)
+  useEffect(() => setTemplate(initialTemplate), [initialTemplate]);
 
   const handlePdf = async () => {
     const element = printRef.current;
     if (!element) return;
 
-    const canvas = await html2canvas(element, { scale: 2 });
+    // ensure capture at good quality
+    const canvas = await html2canvas(element, {
+      scale: 2,           // bump to 2x for sharper PDF
+      backgroundColor: null,
+      useCORS: true,
+    });
     const imgData = canvas.toDataURL("image/png");
 
     const pdf = new jsPDF("p", "mm", "a4");
@@ -68,17 +97,21 @@ export default function TemplatePreview({ data, initialTemplate = "pastel" }) {
 
   return (
     <>
-      <div style={{ marginBottom: 12 }}>
-        <label style={{ marginRight: 8 }}>Choose Template:</label>
-        <select value={template} onChange={(e) => setTemplate(e.target.value)}>
-          {TEMPLATE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-      </div>
+      {!hideSelector && (
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ marginRight: 8 }}>Choose Template:</label>
+          <select value={template} onChange={(e) => setTemplate(e.target.value)}>
+            {TEMPLATE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
-      <div ref={printRef} style={{ display: "grid", placeItems: "center" }}>
-        <Comp data={data} />
+      {/* A4 content area — keep width stable for clean PDF */}
+      <div ref={printRef} style={{ display: "grid", placeItems: "center", width: "100%" }}>
+        {/* Pass Avatar so templates can render data.photo */}
+        <Comp data={data} Avatar={Avatar} />
       </div>
 
       <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
