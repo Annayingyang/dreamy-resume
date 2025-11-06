@@ -43,7 +43,48 @@ const COMMON_QUESTIONS = [
   "Tell me about a time you worked in a team",
 ];
 
-const INDUSTRIES = ["Design","Marketing","HR","Software","Admin","Sales","Finance","Education"];
+const INDUSTRY_QUESTIONS = {
+  Design: [
+    "Tell me about a time your design decision impacted a KPI",
+    "How do you balance user needs vs business goals?",
+    "Describe your handoff process to developers",
+  ],
+  Marketing: [
+    "Walk me through a campaign you led and the results",
+    "How do you decide channels and measure ROI?",
+    "Describe a time an A/B test changed your approach",
+  ],
+  HR: [
+    "How have you shortened time-to-hire?",
+    "Describe a structured interview you implemented",
+    "Tell me about a tricky stakeholder in hiring",
+  ],
+  Software: [
+    "Describe a performance issue you solved",
+    "Tell me about a system you designed and why",
+    "How do you ensure code quality at scale?",
+  ],
+  Admin: [
+    "How have you improved an operational process?",
+    "Tell me about managing conflicting priorities",
+    "What tools do you use to keep teams organised?",
+  ],
+  Sales: [
+    "Walk me through your sales cycle",
+    "Tell me about a time you salvaged a deal",
+    "How do you handle objections effectively?",
+  ],
+  Finance: [
+    "Describe a forecasting model you improved",
+    "Tell me about a cost-saving you identified",
+    "How do you ensure accuracy under deadlines?",
+  ],
+  Education: [
+    "Tell me about improving learner outcomes",
+    "How do you adapt content for different levels?",
+    "Describe a time you handled a challenging parent",
+  ],
+};
 
 /** Keyword extractor for resume text */
 function extractKeywords(text) {
@@ -120,6 +161,10 @@ function validate(form) {
   return errors;
 }
 
+/** Local storage helpers */
+const LS_KEY = "interview_tips_form_v2";
+const LS_ANSWER = "interview_tips_live_answer_v2";
+
 export default function InterviewTips() {
   const { user, cvPrefs } = useApp();
 
@@ -142,13 +187,14 @@ export default function InterviewTips() {
   const answerInputRef = useRef(null);
   const [liveQuestion, setLiveQuestion] = useState(COMMON_QUESTIONS[0]);
   const [liveTyped, setLiveTyped] = useState("");
+  const [showIntro, setShowIntro] = useState(true);
 
   /** Breathing animation controls */
   const [breathing, setBreathing] = useState(false);
   const [breathPhase, setBreathPhase] = useState("Ready"); // Inhale / Hold / Exhale / Hold
   const [breathCount, setBreathCount] = useState(4);
 
-  // simple 4-4-4-4 loop
+  // simple 4-4-4-4 loop with proper HOLD stop/pulse
   useEffect(() => {
     if (!breathing) return;
     const phases = ["Inhale", "Hold", "Exhale", "Hold"];
@@ -156,25 +202,42 @@ export default function InterviewTips() {
     setBreathPhase(phases[i]);
     setBreathCount(4);
 
-    const tick = () => {
+    const t = setInterval(() => {
       setBreathCount((c) => {
         if (c > 1) return c - 1;
-        // move to next phase
         i = (i + 1) % phases.length;
         setBreathPhase(phases[i]);
         return 4;
       });
-    };
-
-    const t = setInterval(tick, 1000); // 1s beat
+    }, 1000);
     return () => clearInterval(t);
   }, [breathing]);
 
   /** Simulate initial fetch (skeletons) */
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(t);
+    const i = setTimeout(() => setShowIntro(false), 1400);
+    return () => { clearTimeout(t); clearTimeout(i); };
   }, []);
+
+  /** Restore from localStorage */
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+      if (saved) setForm((p) => ({ ...p, ...saved }));
+      const ans = localStorage.getItem(LS_ANSWER);
+      if (ans) setLiveTyped(ans);
+    } catch {}
+  }, []);
+
+  /** Persist to localStorage */
+  useEffect(() => {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(form)); } catch {}
+  }, [form]);
+
+  useEffect(() => {
+    try { localStorage.setItem(LS_ANSWER, liveTyped || ""); } catch {}
+  }, [liveTyped]);
 
   /** Re-generate suggestions whenever resume changes */
   useEffect(() => {
@@ -221,13 +284,34 @@ export default function InterviewTips() {
 
   const recommendedKey = (form.industry || "").toLowerCase();
 
+  /** “Live coach” hint bubble */
   const liveHint = useMemo(() => {
     if (!liveTyped.trim()) return "Tip: Start your answer with the S in STAR (Situation) in one line.";
     if (liveTyped.length < 60) return "Nice and concise. Add your ACTION—what exactly did you do?";
     if (!/\d/.test(liveTyped)) return "Try quantifying the RESULT with a number or % if possible.";
-    if (!/(I|we)\s/i.test(liveTyped)) return "Use active voice: 'I designed...' or 'We shipped...'";
+    if (!/(?:\bI\b|\bwe\b)/i.test(liveTyped)) return "Use active voice: 'I designed...' or 'We shipped...'";
     return "Looks strong—end with a one-line impact and tie back to this role.";
   }, [liveTyped]);
+
+  /** “Polish my answer ✨” mock improver */
+  const polishAnswer = () => {
+    const base = liveTyped.trim();
+    if (!base) return;
+    const s = coach?.situation || "a challenging situation";
+    const t = coach?.task?.toLowerCase?.() || "deliver a clear outcome";
+    const a = coach?.action?.toLowerCase?.() || "took ownership and executed";
+    const r = coach?.result || "↑ 25% improvement";
+    const polished =
+      `Situation: ${s}. Task: ${t}. Action: ${a}. Result: ${r}.` +
+      (/\d/.test(base) ? "" : " (Added a quantifiable impact.)");
+    setLiveTyped(polished);
+  };
+
+  /** Tailored questions based on industry */
+  const industryKey = (form.industry || "").trim();
+  const questionBank = industryKey && INDUSTRY_QUESTIONS[industryKey]
+    ? [...INDUSTRY_QUESTIONS[industryKey], ...COMMON_QUESTIONS]
+    : COMMON_QUESTIONS;
 
   return (
     <section className="tips card">
@@ -235,9 +319,18 @@ export default function InterviewTips() {
         <div className="title">
           <h1>Interview Coach</h1>
           <p className="muted">
-            Hi {form.name || user?.name || "there"} — breathe. We’ll prep answers, calm nerves, and dress the part.
+            {showIntro
+              ? "Let’s make your interview your next win 💪"
+              : <>Hi {form.name || user?.name || "there"} — breathe. We’ll prep answers, calm nerves, and dress the part.</>}
           </p>
+          {/* Persistent industry context chip */}
+          {industryKey ? (
+            <div className="context-chip" aria-live="polite">
+              <span className="dot" /> {industryKey}
+            </div>
+          ) : null}
         </div>
+
         <nav className="tabs" role="tablist" aria-label="Interview sections">
           {[
             ["coach","Coach"],
@@ -297,7 +390,7 @@ export default function InterviewTips() {
                       aria-invalid={!!errors.industry}
                     >
                       <option value="">Choose…</option>
-                      {INDUSTRIES.map((i) => <option key={i} value={i}>{i}</option>)}
+                      {["Design","Marketing","HR","Software","Admin","Sales","Finance","Education"].map((i) => <option key={i} value={i}>{i}</option>)}
                     </select>
                     {errors.industry && <em className="err">{errors.industry}</em>}
                   </label>
@@ -384,7 +477,7 @@ export default function InterviewTips() {
                       <label className="fg">
                         <span>Question</span>
                         <select value={liveQuestion} onChange={(e) => setLiveQuestion(e.target.value)}>
-                          {COMMON_QUESTIONS.map((q) => <option key={q}>{q}</option>)}
+                          {questionBank.map((q) => <option key={q}>{q}</option>)}
                         </select>
                       </label>
                       <label className="fg">
@@ -397,7 +490,14 @@ export default function InterviewTips() {
                           placeholder="Start with the Situation in one line…"
                         />
                       </label>
-                      <p className="live-hint">{liveHint}</p>
+
+                      {/* Floating live-coach bubble */}
+                      <div className="live-coach-bubble" aria-live="polite">{liveHint}</div>
+
+                      <div className="coach-actions">
+                        <button type="button" className="btn" onClick={polishAnswer}>Polish my answer ✨</button>
+                      </div>
+
                       <details className="expandable">
                         <summary>Show a sample opener</summary>
                         <p className="muted">
@@ -499,7 +599,6 @@ export default function InterviewTips() {
                 })}
               </div>
 
-              {/* cute avatar stays for vibe */}
               <div className="wear-illus" aria-hidden="true">
                 <div className="avatar" />
               </div>
