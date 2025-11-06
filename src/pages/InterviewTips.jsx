@@ -161,9 +161,71 @@ function validate(form) {
   return errors;
 }
 
-/** Local storage helpers */
-const LS_KEY = "interview_tips_form_v2";
-const LS_ANSWER = "interview_tips_live_answer_v2";
+/** Local storage keys */
+const LS_KEY = "interview_tips_form_v3";
+const LS_ANSWER = "interview_tips_live_answer_v3";
+
+/** ========= Inline polish helpers (rewrite your text in place) ========= */
+function smartCap(s) {
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+function tightenFiller(text) {
+  const fillers = [
+    /\bkind of\b/gi, /\bsort of\b/gi, /\bbasically\b/gi, /\breally\b/gi, /\bvery\b/gi,
+    /\bjust\b/gi, /\bliterally\b/gi, /\bactually\b/gi, /\bi think\b/gi, /\bin order to\b/gi
+  ];
+  let s = text;
+  fillers.forEach((re) => (s = s.replace(re, (m) => (m.toLowerCase() === "in order to" ? "to" : ""))));
+  return s.replace(/\s{2,}/g, " ").trim();
+}
+function upgradeVerbs(text) {
+  const swaps = [
+    [/\bmake\b/gi, "craft"], [/\bmade\b/gi, "crafted"],
+    [/\bdo\b/gi, "execute"], [/\bdid\b/gi, "executed"],
+    [/\buse\b/gi, "leverage"], [/\bused\b/gi, "leveraged"],
+    [/\bhelp\b/gi, "support"], [/\bhelped\b/gi, "supported"],
+    [/\bfix\b/gi, "resolve"], [/\bfixed\b/gi, "resolved"],
+    [/\bimprove\b/gi, "enhance"], [/\bimproved\b/gi, "enhanced"],
+    [/\bincrease\b/gi, "elevate"], [/\bincreased\b/gi, "elevated"],
+    [/\breduce\b/gi, "decrease"], [/\breduced\b/gi, "decreased"],
+    [/\bshow\b/gi, "demonstrate"], [/\bshowed\b/gi, "demonstrated"],
+    [/\bget\b/gi, "secure"], [/\bgot\b/gi, "secured"],
+    [/\bwork(ed)? on\b/gi, "contribute$1 to"],
+  ];
+  let s = text;
+  swaps.forEach(([a, b]) => (s = s.replace(a, b)));
+  return s;
+}
+function clarifyWeI(text) {
+  return text
+    .replace(/\bwe (designed|built|created|made|did|fixed|improved|reduced|increased)\b/gi, (m, v) => `I ${v}`)
+    .replace(/\bwe\b/gi, "we");
+}
+function punctuationNeaten(s) {
+  let t = s.replace(/\s+([,.;:%!?])/g, "$1").replace(/\s{2,}/g, " ").trim();
+  if (!/[.!?]$/.test(t)) t += ".";
+  return smartCap(t);
+}
+function polishInline(original) {
+  if (!original?.trim()) return original;
+  const parts = original
+    .split(/(?<=[.!?])\s+(?=[A-Z0-9])/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const polished = parts.map((sent) => {
+    let s = tightenFiller(sent);
+    s = upgradeVerbs(s);
+    s = clarifyWeI(s);
+    s = punctuationNeaten(s);
+    return s;
+  });
+
+  const out = polished.join(" ");
+  const maxLen = Math.round(original.length * 1.15);
+  return out.length > maxLen ? out.slice(0, maxLen).trimEnd() + "…" : out;
+}
 
 export default function InterviewTips() {
   const { user, cvPrefs } = useApp();
@@ -189,28 +251,54 @@ export default function InterviewTips() {
   const [liveTyped, setLiveTyped] = useState("");
   const [showIntro, setShowIntro] = useState(true);
 
-  /** Breathing animation controls */
+  /** ===== Breathing animation controls (accurate 4–4–4–4 with both Holds) ===== */
   const [breathing, setBreathing] = useState(false);
-  const [breathPhase, setBreathPhase] = useState("Ready"); // Inhale / Hold / Exhale / Hold
+  const [breathPhase, setBreathPhase] = useState("Ready"); // Inhale | Hold | Exhale | Hold
   const [breathCount, setBreathCount] = useState(4);
+  const countdownRef = useRef(null);
+  const phaseTimeoutRef = useRef(null);
 
-  // simple 4-4-4-4 loop with proper HOLD stop/pulse
-  useEffect(() => {
-    if (!breathing) return;
-    const phases = ["Inhale", "Hold", "Exhale", "Hold"];
-    let i = 0;
-    setBreathPhase(phases[i]);
+  const clearBreathTimers = () => {
+    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+    if (phaseTimeoutRef.current) { clearTimeout(phaseTimeoutRef.current); phaseTimeoutRef.current = null; }
+  };
+
+  const startPhase = (phaseName, nextPhaseName) => {
+    setBreathPhase(phaseName);
     setBreathCount(4);
 
-    const t = setInterval(() => {
-      setBreathCount((c) => {
-        if (c > 1) return c - 1;
-        i = (i + 1) % phases.length;
-        setBreathPhase(phases[i]);
-        return 4;
-      });
+    clearInterval(countdownRef.current);
+    countdownRef.current = setInterval(() => {
+      setBreathCount((c) => (c > 1 ? c - 1 : c));
     }, 1000);
-    return () => clearInterval(t);
+
+    clearTimeout(phaseTimeoutRef.current);
+    phaseTimeoutRef.current = setTimeout(() => {
+      if (!breathing) return;
+      runCycle(nextPhaseName);
+    }, 4000);
+  };
+
+  const runCycle = (phase) => {
+    switch (phase) {
+      case "Inhale":   return startPhase("Inhale", "Hold1");
+      case "Hold1":    return startPhase("Hold",   "Exhale");
+      case "Exhale":   return startPhase("Exhale", "Hold2");
+      case "Hold2":    return startPhase("Hold",   "Inhale");
+      default:         return startPhase("Inhale", "Hold1");
+    }
+  };
+
+  useEffect(() => {
+    if (breathing) {
+      runCycle("Inhale");
+    } else {
+      clearBreathTimers();
+      setBreathPhase("Ready");
+      setBreathCount(4);
+    }
+    return clearBreathTimers;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [breathing]);
 
   /** Simulate initial fetch (skeletons) */
@@ -234,7 +322,6 @@ export default function InterviewTips() {
   useEffect(() => {
     try { localStorage.setItem(LS_KEY, JSON.stringify(form)); } catch {}
   }, [form]);
-
   useEffect(() => {
     try { localStorage.setItem(LS_ANSWER, liveTyped || ""); } catch {}
   }, [liveTyped]);
@@ -281,37 +368,39 @@ export default function InterviewTips() {
       { key: "education", label: "Education", tips: base.education || base.default },
     ];
   }, []);
-
   const recommendedKey = (form.industry || "").toLowerCase();
 
-  /** “Live coach” hint bubble */
+  /** Live coach hint */
   const liveHint = useMemo(() => {
-    if (!liveTyped.trim()) return "Tip: Start your answer with the S in STAR (Situation) in one line.";
-    if (liveTyped.length < 60) return "Nice and concise. Add your ACTION—what exactly did you do?";
-    if (!/\d/.test(liveTyped)) return "Try quantifying the RESULT with a number or % if possible.";
+    if (!liveTyped.trim()) return "Tip: Start with the S in STAR (Situation) in one crisp line.";
+    if (liveTyped.length < 60) return "Add your ACTION—what exactly did you do?";
+    if (!/\d/.test(liveTyped)) return "Try quantifying the RESULT with a number or %.";
     if (!/(?:\bI\b|\bwe\b)/i.test(liveTyped)) return "Use active voice: 'I designed...' or 'We shipped...'";
-    return "Looks strong—end with a one-line impact and tie back to this role.";
+    return "Looks strong—close with impact and tie it to this role.";
   }, [liveTyped]);
 
-  /** “Polish my answer ✨” mock improver */
+  /** Polish (in-place) + Undo */
+  const prevAnswerRef = useRef("");
   const polishAnswer = () => {
-    const base = liveTyped.trim();
+    const base = (liveTyped || "").trim();
     if (!base) return;
-    const s = coach?.situation || "a challenging situation";
-    const t = coach?.task?.toLowerCase?.() || "deliver a clear outcome";
-    const a = coach?.action?.toLowerCase?.() || "took ownership and executed";
-    const r = coach?.result || "↑ 25% improvement";
-    const polished =
-      `Situation: ${s}. Task: ${t}. Action: ${a}. Result: ${r}.` +
-      (/\d/.test(base) ? "" : " (Added a quantifiable impact.)");
-    setLiveTyped(polished);
+    prevAnswerRef.current = base;
+    const improved = polishInline(base);
+    setLiveTyped(improved);
+  };
+  const undoPolish = () => {
+    if (prevAnswerRef.current) {
+      setLiveTyped(prevAnswerRef.current);
+      prevAnswerRef.current = "";
+    }
   };
 
   /** Tailored questions based on industry */
   const industryKey = (form.industry || "").trim();
-  const questionBank = industryKey && INDUSTRY_QUESTIONS[industryKey]
-    ? [...INDUSTRY_QUESTIONS[industryKey], ...COMMON_QUESTIONS]
-    : COMMON_QUESTIONS;
+  const questionBank =
+    industryKey && INDUSTRY_QUESTIONS[industryKey]
+      ? [...INDUSTRY_QUESTIONS[industryKey], ...COMMON_QUESTIONS]
+      : COMMON_QUESTIONS;
 
   return (
     <section className="tips card">
@@ -323,7 +412,11 @@ export default function InterviewTips() {
               ? "Let’s make your interview your next win 💪"
               : <>Hi {form.name || user?.name || "there"} — breathe. We’ll prep answers, calm nerves, and dress the part.</>}
           </p>
-          {/* Persistent industry context chip */}
+          {(form.name || user?.name) ? (
+            <div className="context-chip" aria-live="polite">
+              <span className="dot" /> {form.name || user?.name}
+            </div>
+          ) : null}
           {industryKey ? (
             <div className="context-chip" aria-live="polite">
               <span className="dot" /> {industryKey}
@@ -372,6 +465,15 @@ export default function InterviewTips() {
               <form className="coach-form" onSubmit={onSubmit} noValidate>
                 <div className="grid-2">
                   <label className="fg">
+                    <span>Name</span>
+                    <input
+                      value={form.name}
+                      onChange={(e) => update("name", e.target.value)}
+                      placeholder="Your name"
+                    />
+                  </label>
+
+                  <label className="fg">
                     <span>Target role *</span>
                     <input
                       value={form.role}
@@ -390,7 +492,9 @@ export default function InterviewTips() {
                       aria-invalid={!!errors.industry}
                     >
                       <option value="">Choose…</option>
-                      {["Design","Marketing","HR","Software","Admin","Sales","Finance","Education"].map((i) => <option key={i} value={i}>{i}</option>)}
+                      {["Design","Marketing","HR","Software","Admin","Sales","Finance","Education"].map((i) => (
+                        <option key={i} value={i}>{i}</option>
+                      ))}
                     </select>
                     {errors.industry && <em className="err">{errors.industry}</em>}
                   </label>
@@ -496,6 +600,7 @@ export default function InterviewTips() {
 
                       <div className="coach-actions">
                         <button type="button" className="btn" onClick={polishAnswer}>Polish my answer ✨</button>
+                        <button type="button" className="btn" onClick={undoPolish} disabled={!prevAnswerRef.current}>Undo</button>
                       </div>
 
                       <details className="expandable">
@@ -535,7 +640,10 @@ export default function InterviewTips() {
                   <button className="btn btn-primary" onClick={() => setBreathing((b) => !b)}>
                     {breathing ? "Pause" : "Start"}
                   </button>
-                  <button className="btn" onClick={() => { setBreathing(false); setBreathPhase("Ready"); }}>
+                  <button
+                    className="btn"
+                    onClick={() => { setBreathing(false); setBreathPhase("Ready"); }}
+                  >
                     Reset
                   </button>
                 </div>
