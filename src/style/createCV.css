@@ -163,13 +163,13 @@ select:focus-visible {
 .theme-mint .pill-list li { background: #f0fff8; border-color: #c7f2df; }
 .theme-lavender .pill-list li { background: #faf5ff; border-color: #e9d5ff; }
 .theme-peach .pill-list li { background: #fff8f0; border-color: #ffead6; }
-/* add to createCV.css near the other theme rules */
+
 .theme-sky .pill-list li {
-  background: #eff6ff;          /* very light sky */
+  background: #eff6ff;          
   border-color: #cfe9ff;
 }
 .theme-charcoal .pill-list li {
-  background: #f3f4f6;          /* light gray so text stays readable */
+  background: #f3f4f6;          
   border-color: #cbd5e1;
   color: #111827;
 }
@@ -202,7 +202,7 @@ select:focus-visible {
 
 .swatch-row {
   display: flex;
-  flex-wrap: wrap;       /* <-- allows multiple rows */
+  flex-wrap: wrap;       
   gap: 10px;
 }
 

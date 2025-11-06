@@ -10,7 +10,7 @@
 
 .home .card { overflow: clip; }
 
-/* ===== HERO ===== */
+/*HERO*/
 .hero {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
@@ -161,7 +161,7 @@
   outline: 2px solid #ec4899; outline-offset: 2px;
 }
 .carousel-dots .btn.btn-sm:focus-visible {
-  outline: 2px solid #2563eb; outline-offset: 2px;   /* keyboard a11y */
+  outline: 2px solid #2563eb; outline-offset: 2px;   
 }
 
 
@@ -200,7 +200,7 @@
   max-width: 100%;
 }
 
-/* ===== FULL-PAGE LOADER (Home only) ===== */
+/* FULL-PAGE LOADER */
 .page-loader {
   position: fixed;
   inset: 0;

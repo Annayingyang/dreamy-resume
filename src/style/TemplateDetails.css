@@ -1,5 +1,4 @@
-/* src/style/TemplateDetails.css */
-/* 💖 Dreamy Pastel Theme 💖 */
+
 
 :root {
   --bg-gradient: linear-gradient(180deg, #fbefff 0%, #fdf7ff 100%);
@@ -18,9 +17,7 @@
   --shadow-md: 0 8px 18px rgba(155, 120, 255, 0.15);
 }
 
-/* ------------------------------
-   Layout
------------------------------- */
+
 .td-grid {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -33,9 +30,7 @@
   min-width: 0;
 }
 
-/* ------------------------------
-   Sidebar
------------------------------- */
+
 .stepper {
   background: var(--sidebar-gradient);
   padding: 24px 20px;
@@ -127,9 +122,7 @@
   color: var(--text-dark);
 }
 
-/* ------------------------------
-   Buttons
------------------------------- */
+
 .btn {
   height: 38px;
   padding: 0 16px;
@@ -157,9 +150,7 @@
   color: white;
 }
 
-/* ------------------------------
-   Main panel
------------------------------- */
+
 .card {
   background: var(--white);
   padding: 32px;
@@ -187,9 +178,6 @@
   font-weight: 600;
 }
 
-/* ------------------------------
-   Forms
------------------------------- */
 .form-group {
   display: grid;
   gap: 6px;
@@ -228,9 +216,7 @@ textarea {
   line-height: 1.5;
 }
 
-/* ------------------------------
-   Grid helpers
------------------------------- */
+
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -251,9 +237,7 @@ textarea {
   grid-column: 1 / -1;
 }
 
-/* ------------------------------
-   Photo upload
------------------------------- */
+
 .photo-row {
   display: flex;
   flex-wrap: wrap;
@@ -284,9 +268,7 @@ textarea {
   font-size: 0.9rem;
 }
 
-/* ------------------------------
-   Responsive
------------------------------- */
+
 @media (max-width: 980px) {
   .td-grid {
     grid-template-columns: 1fr;
@@ -337,10 +319,7 @@ textarea {
   opacity: 0.9;
 }
 
-/* ================================
-   3) Cute sidebar icons
-   (hearts/stars/bows next to steps)
-==================================*/
+
 .stepper ol li span:last-child {
   position: relative;
   padding-left: 22px; /* room for the icon */
@@ -366,9 +345,7 @@ textarea {
 .stepper ol li:nth-child(5) span:last-child::before { content: "♢"; color: var(--primary-lavender); }
 .stepper ol li:nth-child(6) span:last-child::before { content: "ꕤ"; color: var(--primary-blue); }
 
-/* ================================
-   Animations
-==================================*/
+
 @keyframes dreamy-shimmer {
   0% { background-position: 0% 0; }
   100% { background-position: 200% 0; }
@@ -393,7 +370,7 @@ textarea {
   }
 }
 
-/* === Fix date selector + "currently work here" alignment === */
+
 .form-group .inline {
   display: flex;
   align-items: center;
@@ -434,7 +411,7 @@ textarea {
   cursor: pointer;
 }
 
-/* ==== Date range alignment fix ==== */
+/* Date range alignment  */
 .grid-2 .form-group {
   display: flex;
   flex-direction: column;
@@ -475,7 +452,7 @@ textarea {
   cursor: pointer;
 }
 
-/* === dreamy checkbox style === */
+/* dreamy checkbox style  */
 .current-checkbox input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;

@@ -1,4 +1,4 @@
-// src/pages/CreateCV.jsx
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/createCV.css";
@@ -60,6 +60,7 @@ function recommendTemplates(prefs) {
     pink:          ["pastel","lavender-glow","coral-warm","serif-cream","modern-sky","mint","notion-blocks","slate-columns","photo-left","charcoal-pro","dark"],
     lavender:      ["lavender-glow","pastel","serif-cream","modern-sky","mint","notion-blocks","slate-columns","photo-left","coral-warm","charcoal-pro","dark"],
     peach:         ["coral-warm","pastel","serif-cream","mint","modern-sky","notion-blocks","slate-columns","photo-left","lavender-glow","charcoal-pro","dark"],
+   coral:         ["coral-warm","pastel","serif-cream","mint","modern-sky","notion-blocks","slate-columns","photo-left","lavender-glow","charcoal-pro","dark"],
     sky:           ["modern-sky","mint","serif-cream","slate-columns","pastel","photo-left","notion-blocks","lavender-glow","coral-warm","charcoal-pro","dark"],
     charcoal:      ["charcoal-pro","dark","slate-columns","modern-sky","notion-blocks","serif-cream","mint","pastel","photo-left","coral-warm","lavender-glow"],
     cream:         ["serif-cream","slate-columns","notion-blocks","modern-sky","mint","pastel","photo-left","charcoal-pro","dark","lavender-glow","coral-warm"],
@@ -94,9 +95,7 @@ function recommendTemplates(prefs) {
   return { ordered, all };
 }
 
-/* =======================================
-   CreateCV — INTRO WIZARD (no template picking here)
-   ======================================= */
+
 export default function CreateCV() {
   const navigate = useNavigate();
   const { setCvPrefs } = useApp(); // safe if provided
@@ -123,7 +122,7 @@ useEffect(() => {
     };
     try { localStorage.setItem(LS_PREFS, JSON.stringify(prefs)); } catch {}
     setCvPrefs?.(prefs);
-  }, 200); // debounce a bit so we don't spam storage
+  }, 200); 
   return () => clearTimeout(t);
 }, [data.name, data.email, data.role, data.experience, data.job, data.color, data.tone, setCvPrefs]);
 
@@ -134,13 +133,13 @@ useEffect(() => {
     return () => clearTimeout(t);
   }, []);
 
-  // a11y focus on step change
+  // a11y focus 
   const focusRef = useRef(null);
   useEffect(() => { focusRef.current?.focus(); }, [index]);
 
   const onInput = (id, value) => setData((p) => ({ ...p, [id]: value }));
 
-  // validation per step
+  // validatio
   const validate = useMemo(() => {
     return (s = current, d = data) => {
       setError("");
@@ -182,8 +181,8 @@ useEffect(() => {
       experience: String(data.experience).trim(),
       job: data.job,
       color: data.color,
-      tone: data.tone, // NEW
-      // no font anymore
+      tone: data.tone, 
+      
     };
 
     const reco = recommendTemplates(prefs);

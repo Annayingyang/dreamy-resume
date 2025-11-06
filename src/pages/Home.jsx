@@ -1,11 +1,11 @@
-// src/pages/Home.jsx
+
 import React, { useEffect, useMemo, useRef, useState, useId } from "react";
 import { Link } from "react-router-dom";
 import "../style/Home.css";
 
 const asset = (p) => `${process.env.PUBLIC_URL}${p}`;
 
-/* ===== Full-page loader overlay (Home only) ===== */
+
 function PageLoader() {
   return (
     <div className="page-loader" role="alert" aria-live="assertive" aria-busy="true">
@@ -18,7 +18,7 @@ function PageLoader() {
   );
 }
 
-/* ===== Feature carousel with A11y + keyboard ===== */
+/* eature carousel */
 function FeatureCarousel() {
   const slides = useMemo(
     () => [
