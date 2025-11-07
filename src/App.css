@@ -1,38 +1,80 @@
-.App {
-  text-align: center;
+
+
+/* Top glow: peach-pink */
+#root::before {
+  top: -30vmax;
+  left: -12vmax;
+  background:
+    radial-gradient(
+      ellipse at top center,
+      #ffe4f2 0%,
+      #ffd6ec 35%,
+      #fff0fa 60%,
+      transparent 80%
+    );
 }
 
-.App-logo {
-  height: 40vmin;
+/* Bottom glow: blush-to-mint hint */
+#root::after {
+  right: -20vmax;
+  bottom: -25vmax;
+  background:
+    radial-gradient(
+      ellipse at bottom right,
+      #ffedf7 0%,
+      #fceeff 40%,
+      #e8fff5 70%,
+      transparent 90%
+    );
+  animation-delay: 6s;
+}
+
+/* Base page gradient */
+html, body {
+  background: linear-gradient(135deg, #fff5fb 0%, #fff0f9 50%, #f9f5ff 100%);
+  background-attachment: fixed;
+}
+
+/* ===== Global Sparkle Trail ===== */
+.sparkle-layer {
+  position: fixed;
+  inset: 0;
   pointer-events: none;
+  z-index: 9999;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.sparkle {
+  position: absolute;
+  width: var(--size, 8px);
+  height: var(--size, 8px);
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #fff, rgba(255, 255, 255, 0.6));
+  box-shadow:
+    0 0 8px rgba(240, 184, 149, 0.958),
+    0 0 20px hsla(var(--h, 330), 90%, 70%, 0.45);
+  transform: translate(-50%, -50%) rotate(calc(var(--r) * 1deg));
+  animation: sparkle-pop 0.7s ease forwards;
+}
+
+@keyframes sparkle-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
+  }
+  40% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.25)
+      rotate(180deg);
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+@media (prefers-reduced-motion: reduce) {
+  .sparkle-layer {
+    display: none;
   }
 }
+
