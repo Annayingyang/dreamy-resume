@@ -1,6 +1,6 @@
 
 
-/* Top glow: peach-pink */
+
 #root::before {
   top: -30vmax;
   left: -12vmax;
@@ -14,7 +14,7 @@
     );
 }
 
-/* Bottom glow: blush-to-mint hint */
+
 #root::after {
   right: -20vmax;
   bottom: -25vmax;
@@ -35,15 +35,15 @@ html, body {
   background-attachment: fixed;
 }
 
-/* ===== Global Sparkle Trail ===== */
-.sparkle-layer {
+
+.app-sparkle-layer {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 9999;
 }
 
-.sparkle {
+.app-sparkle-dot {
   position: absolute;
   width: var(--size, 8px);
   height: var(--size, 8px);
@@ -53,10 +53,10 @@ html, body {
     0 0 8px rgba(240, 184, 149, 0.958),
     0 0 20px hsla(var(--h, 330), 90%, 70%, 0.45);
   transform: translate(-50%, -50%) rotate(calc(var(--r) * 1deg));
-  animation: sparkle-pop 0.7s ease forwards;
+  animation: app-sparkle-pop 0.7s ease forwards;
 }
 
-@keyframes sparkle-pop {
+@keyframes app-sparkle-pop {
   0% {
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
@@ -73,8 +73,7 @@ html, body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sparkle-layer {
-    display: none;
-  }
+  .app-sparkle-layer { display: none; }
 }
+
 

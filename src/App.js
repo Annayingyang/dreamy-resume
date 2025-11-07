@@ -14,7 +14,7 @@ import TemplateDetails from "./pages/TemplateDetails";
 
 import "./App.css";
 
-/* ---------- ✨ Global Sparkle Trail (follows cursor on all pages) ---------- */
+
 function GlobalSparkles() {
   const layerRef = useRef(null);
   const lastTimeRef = useRef(0);
@@ -36,7 +36,7 @@ function GlobalSparkles() {
     const makeSparkle = (x, y) => {
       let s = poolRef.current.pop();
       if (!s) s = document.createElement("span");
-      s.className = "sparkle";
+      s.className = "app-sparkle-dot";           // ← matches your CSS
       s.style.left = `${x}px`;
       s.style.top = `${y}px`;
       s.style.setProperty("--r", (Math.random() * 360).toFixed(0));
@@ -85,14 +85,14 @@ function GlobalSparkles() {
     };
   }, []);
 
-  return <div ref={layerRef} className="sparkle-layer" aria-hidden="true" />;
+  return <div ref={layerRef} className="app-sparkle-layer" aria-hidden="true" />;
 }
 
-/* ---------- 🌸 Main App Shell ---------- */
+
 export default function App() {
   return (
     <div className="app-shell">
-      {/* Global sparkle layer (on all pages) */}
+      {/* (on all pages) */}
       <GlobalSparkles />
 
       <Header />

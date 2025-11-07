@@ -1,4 +1,4 @@
-/* ====== Home.css — asset-free, always-visible, shocking-pretty ====== */
+/* Home.css */
 
 .home {
   max-width: 1100px;
@@ -15,16 +15,16 @@
   position: absolute;
   z-index: -2;
   pointer-events: none;
-  opacity: 0.45;                         /* slightly stronger for visibility */
-  filter: blur(80px) saturate(120%);     /* softer, richer color */
+  opacity: 0.45;                        
+  filter: blur(80px) saturate(120%);     
   width: 60vmax;
   height: 60vmax;
   animation: floatBlob 20s ease-in-out infinite alternate;
   transform-origin: center;
-  mix-blend-mode: lighten;               /* ✨ key: makes glow blend naturally */
+  mix-blend-mode: lighten;               
 }
 
-/* top-left: warm pink to peach glow */
+/* top-left*/
 .home::before {
   top: -25vmax;
   left: -20vmax;
@@ -37,7 +37,7 @@
   );
 }
 
-/* bottom-right: cool lavender to sky glow */
+/* bottom-right */
 .home::after {
   bottom: -25vmax;
   right: -20vmax;
@@ -52,10 +52,10 @@
 }
 
 .home::before {
-  top: -30vmax;          /* move it higher */
+  top: -30vmax;         
   left: -10vmax;
   background: radial-gradient(
-    ellipse at top center, /* 👈 put the glow at the top */
+    ellipse at top center, 
     #d4aef1 0%,
     transparent 65%
   );
@@ -66,7 +66,7 @@
   bottom: -8vmax;
   right: -14vmax;
   background: radial-gradient(
-    ellipse at bottom right, /* 👈 lavender glow lower right */
+    ellipse at bottom right, 
     #d7c6ff 0%,
     transparent 65%
   );
@@ -118,7 +118,7 @@
 
 .eyebrow { color: #1d4ed8; font-weight: 700; letter-spacing: .015em; margin: 0 0 4px; }
 
-/* gradient text + shimmer */
+
 .accent {
   background: linear-gradient(90deg, #ec4899, #f59e0b);
   -webkit-background-clip: text; background-clip: text; color: transparent; position: relative;
@@ -136,7 +136,7 @@
 
 .hero-right { position: relative; display: flex; align-items: center; justify-content: center; }
 
-/* hero preview: tilt + sweep on hover */
+
 .hero-cv {
   width: 100%; max-width: 520px; aspect-ratio: 13/10;
   border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,.08);
@@ -234,7 +234,7 @@ a.btn:hover {
   align-items: center;
   width: 100%;
   margin-top: 10px;
-  gap: 20px; /* 💖 add spacing between buttons */
+  gap: 20px; 
 }
 
 
