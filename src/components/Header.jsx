@@ -70,9 +70,10 @@ export default function Header() {
             <>
               <span className="hello">
                 <span
-                  className={"avatar" + (isIncomplete ? " needs-attention" : "")}
-                  aria-hidden="true"
-                >
+  className={`avatar vibe-${(user?.avatarColor || "rose")}${isIncomplete ? " needs-attention" : ""}`}
+  aria-hidden="true"
+>
+
                   {displayName ? displayName[0]?.toUpperCase() : "?"}
                 </span>
                 <span className="hello-text">

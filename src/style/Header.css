@@ -316,3 +316,11 @@
     transition: none !important;
   }
 }
+
+
+.avatar.vibe-rose{ background: radial-gradient(120% 120% at 20% 20%, #fff, #ffe7f2 40%, #ffcfe8 85%); }
+.avatar.vibe-mint{ background: radial-gradient(120% 120% at 20% 20%, #fff, #e8fff5 40%, #bdf2e3 85%); }
+.avatar.vibe-lavender{ background: radial-gradient(120% 120% at 20% 20%, #fff, #efe8ff 40%, #d9c9ff 85%); }
+.avatar.vibe-sky{ background: radial-gradient(120% 120% at 20% 20%, #fff, #f0f9ff 40%, #cfe8ff 85%); }
+.avatar.vibe-coral{ background: radial-gradient(120% 120% at 20% 20%, #fff, #fff1ed 40%, #ffd8c8 85%); }
+.avatar.vibe-dark{ background: radial-gradient(120% 120% at 20% 20%, #2e2e40, #4e4e68 40%, #6a6a90 85%); color:#fff; }
