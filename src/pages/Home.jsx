@@ -56,7 +56,7 @@ function useCursorHalo(enabled = true) {
   }, [enabled, reduced]);
 }
 
-/*  PNG components */
+
 
 
 const HeroImage = () => (
@@ -185,7 +185,7 @@ export default function Home() {
             Design a <span className="accent">pastel-perfect</span> CV in minutes
           </h1>
           <p className="lead">
-            Create an elegant resume, get AI suggestions, and prep for interviews—
+            Create an elegant resume, get AI suggestions and prep for interviews
             all in one soft, focused workspace.
           </p>
           <div className="cta-row">
@@ -227,7 +227,7 @@ export default function Home() {
             </li>
             <li>
               <strong><span className="num">2</span> Pastel-perfect templates</strong>
-              <p>Curated designs that feel calm, modern, and professional.</p>
+              <p>Curated designs that feel calm, modern and professional.</p>
             </li>
             <li>
               <strong><span className="num">3</span> Interview prep that helps</strong>
@@ -244,7 +244,7 @@ export default function Home() {
         <div className="step card fade-up">
           <StepImage i={1} />
           <h3>Pick your vibe</h3>
-          <p className="lead">Choose a template that fits your aesthetic—soft, elegant, or bold.</p>
+          <p className="lead">Choose a template that fits your aesthetic soft, elegant or bold.</p>
         </div>
 
         <div className="step card fade-up delay-1">
@@ -256,7 +256,7 @@ export default function Home() {
         <div className="step card fade-up delay-2">
           <StepImage i={3} />
           <h3>Export & shine</h3>
-          <p className="lead">One-click export to PDF—ready for applications and portfolios.</p>
+          <p className="lead">One click export to PDF ready for applications and portfolios.</p>
         </div>
       </section>
 
