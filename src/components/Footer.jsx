@@ -25,7 +25,7 @@ export default function Footer() {
         <div className="brand-col">
           <div className="logo-mark" aria-hidden="true">✨</div>
           <h3 className="brand-name">Dreamy Resume</h3>
-          <p className="tagline">Crafted with calm & creativity 🌷</p>
+          <p className="tagline">Crafted with calm & creativity </p>
         </div>
 
         {/* simple navigation buttons */}
@@ -37,7 +37,7 @@ export default function Footer() {
         </nav>
 
         <div className="contact-col">
-          <a href="tel:+000000000" className="contact-item">📞 000-000-000</a>
+          <a href="tel:+000000000" className="contact-item">📞 +27 83 424 9269</a>
           <a href="mailto:hello@dreamyresume.com" className="contact-item">📧 hello@dreamyresume.com</a>
         </div>
       </div>
