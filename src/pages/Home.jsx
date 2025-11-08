@@ -180,12 +180,12 @@ export default function Home() {
       {/* HER*/}
       <section className="hero card" aria-labelledby="hero-title">
         <div className="hero-left fade-up">
-          <p className="eyebrow">Dreamy Resume • built for calm</p>
+          <p className="eyebrow">Dreamy Resume • built for YOU</p>
           <h1 id="hero-title">
             Design a <span className="accent">pastel-perfect</span> CV in minutes
           </h1>
           <p className="lead">
-            Create an elegant resume, get AI suggestions and prep for interviews
+            Create an elegant resume, get suggestions and prep for interviews
             all in one soft, focused workspace.
           </p>
           <div className="cta-row">
