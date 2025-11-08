@@ -343,6 +343,39 @@ a.btn:hover {
   .home .card { padding: 12px; border-radius: 14px; }
 }
 
+/* Phones */
+@media (max-width: 680px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-left  { order: 1; }   
+  .hero-right { order: 2; }   
+}
+
+@media (max-width: 680px) {
+  .site-header { padding-inline: 10px; }
+  .site-header .brand { flex: 1 1 auto; min-width: 0; }
+  .site-header .brand-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .site-header .nav-actions { gap: 6px; }
+}
+
+@media (max-width: 680px) {
+  .hero-cv {
+    max-width: 86vw;
+    aspect-ratio: 16/11;  
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 680px) {
+  .home { overflow-x: hidden; }
+  .home::before, .home::after {
+    width: 78vw; height: 78vw; opacity: .34; filter: blur(60px) saturate(110%);
+    
+  }
+  .home::before { left: -28vw; top: -30vw; }
+  .home::after  { right: -28vw; bottom: -30vw; }
+}
+
+
 
 @media (max-width: 680px) {
   .home { padding-inline: 10px; }
