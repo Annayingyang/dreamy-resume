@@ -1,9 +1,12 @@
-// src/pages/Home.jsx
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/Home.css";
 
-/* ========= Accessibility: motion prefs ========= */
+
+const asset = (p) => `${process.env.PUBLIC_URL}${p}`;
+
+
 function useReducedMotion() {
   const [pref, setPref] = useState(false);
   useEffect(() => {
@@ -17,7 +20,7 @@ function useReducedMotion() {
   return pref;
 }
 
-/* ========= Cursor halo spotlight ========= */
+
 function useCursorHalo(enabled = true) {
   const reduced = useReducedMotion();
   useEffect(() => {
@@ -53,78 +56,56 @@ function useCursorHalo(enabled = true) {
   }, [enabled, reduced]);
 }
 
-/* ========= Inline SVGs (no assets needed) ========= */
-const HeroPreview = () => (
-  <svg className="hero-cv" viewBox="0 0 520 400" role="img" aria-label="Pastel resume preview">
-    <defs>
-      <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopOpacity="1" stopColor="#ffe5f0"/>
-        <stop offset="100%" stopOpacity="1" stopColor="#f3e9ff"/>
-      </linearGradient>
-      <linearGradient id="g2" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stopColor="#ec4899"/>
-        <stop offset="100%" stopColor="#f59e0b"/>
-      </linearGradient>
-      <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
-        <feGaussianBlur stdDeviation="6"/>
-      </filter>
-    </defs>
-    <rect x="0" y="0" width="520" height="400" fill="url(#g1)"/>
-    <rect x="36" y="36" width="448" height="328" rx="16" fill="#fff" stroke="#f0d7ff"/>
-    <rect x="60" y="60" width="90" height="90" rx="12" fill="#ffe1ef" filter="url(#blur)"/>
-    <rect x="170" y="72" width="250" height="18" rx="9" fill="url(#g2)"/>
-    <rect x="170" y="100" width="210" height="10" rx="5" fill="#e8e7ff"/>
-    <rect x="170" y="118" width="230" height="10" rx="5" fill="#ffe6f2"/>
-    <rect x="60" y="170" width="380" height="10" rx="5" fill="#eadfff"/>
-    <rect x="60" y="188" width="300" height="10" rx="5" fill="#ffecec"/>
-    <rect x="60" y="206" width="350" height="10" rx="5" fill="#eaf7ff"/>
-    <rect x="60" y="242" width="380" height="10" rx="5" fill="#eadfff"/>
-    <rect x="60" y="260" width="320" height="10" rx="5" fill="#ffecec"/>
-    <rect x="60" y="278" width="280" height="10" rx="5" fill="#eaf7ff"/>
-  </svg>
+/*  PNG components */
+
+
+const HeroImage = () => (
+  <img
+    className="hero-cv"
+    src={asset("/assets/home/hero-girl.png")}
+    alt="Illustration of a girl building her CV on a laptop"
+    width={520}
+    height={400}
+    loading="eager"
+    decoding="async"
+  />
 );
 
-const FeatureImage = ({ variant = 1 }) => (
-  <svg viewBox="0 0 520 300" className="feature-img" role="img" aria-label={`Feature visual ${variant}`}>
-    <defs>
-      <linearGradient id={`f${variant}`} x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor={variant === 1 ? "#ffd6ec" : variant === 2 ? "#d7c6ff" : "#cfe8ff"}/>
-        <stop offset="100%" stopColor="#ffffff"/>
-      </linearGradient>
-    </defs>
-    <rect width="520" height="300" rx="16" fill={`url(#f${variant})`}/>
-    <g opacity=".65">
-      <circle cx="90" cy="210" r="50" fill="#fff"/>
-      <rect x="170" y="70" width="270" height="20" rx="10" fill="#fff"/>
-      <rect x="170" y="104" width="210" height="12" rx="6" fill="#fff"/>
-      <rect x="170" y="126" width="240" height="12" rx="6" fill="#fff"/>
-      <rect x="170" y="160" width="300" height="12" rx="6" fill="#fff"/>
-      <rect x="170" y="182" width="200" height="12" rx="6" fill="#fff"/>
-    </g>
-  </svg>
+
+const FeatureImage = ({ index }) => (
+  <img
+    className="feature-img"
+    src={asset(`/assets/home/feature-${index + 1}.png`)}
+    alt={["Smart suggestions", "Pastel templates", "Interview prep"][index] || "Feature"}
+    width={520}
+    height={300}
+    loading="lazy"
+    decoding="async"
+  />
 );
+
 
 const StepImage = ({ i }) => (
-  <svg viewBox="0 0 520 260" className="step-img" role="img" aria-label={`Step ${i}`}>
-    <defs>
-      <linearGradient id={`s${i}`} x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor={i === 1 ? "#fff1f7" : i === 2 ? "#eef2ff" : "#f0fff8"}/>
-        <stop offset="100%" stopColor="#ffffff"/>
-      </linearGradient>
-    </defs>
-    <rect width="520" height="260" rx="12" fill={`url(#s${i})`}/>
-    <rect x="40" y="48" width="440" height="14" rx="7" fill="#f5d0fe"/>
-    <rect x="40" y="72" width="300" height="10" rx="5" fill="#fde68a"/>
-    <rect x="40" y="96" width="380" height="10" rx="5" fill="#bae6fd"/>
-    <rect x="40" y="132" width="430" height="10" rx="5" fill="#e9d5ff"/>
-    <rect x="40" y="154" width="260" height="10" rx="5" fill="#fecaca"/>
-  </svg>
+  <img
+    className="step-img"
+    src={asset(`/assets/home/step-${i}.png`)}
+    alt={
+      i === 1
+        ? "Pick your vibe"
+        : i === 2
+        ? "Tell your story"
+        : "Export and shine"
+    }
+    width={520}
+    height={260}
+    loading="lazy"
+    decoding="async"
+  />
 );
 
-/* ========= Feature carousel (inline SVGs) ========= */
+
 function FeatureCarousel() {
-  const slides = useMemo(() => [1, 2, 3], []);
-  const total = slides.length;
+  const slides = useMemo(() => [0, 1, 2], []);
   const [index, setIndex] = useState(0);
   const reduced = useReducedMotion();
   const intervalRef = useRef(null);
@@ -133,7 +114,7 @@ function FeatureCarousel() {
     if (reduced) return;
     const start = () => {
       clearInterval(intervalRef.current);
-      intervalRef.current = setInterval(() => setIndex((p) => (p + 1) % total), 3500);
+      intervalRef.current = setInterval(() => setIndex((p) => (p + 1) % slides.length), 3500);
     };
     const stop = () => {
       clearInterval(intervalRef.current);
@@ -146,11 +127,11 @@ function FeatureCarousel() {
       stop();
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [total, reduced]);
+  }, [slides.length, reduced]);
 
   return (
     <div className="feature-illus fade-in">
-      <FeatureImage variant={slides[index]} />
+      <FeatureImage index={index} />
       <div className="carousel-dots" role="tablist" aria-label="Feature slides">
         {slides.map((_, i) => (
           <button
@@ -167,7 +148,7 @@ function FeatureCarousel() {
   );
 }
 
-/* ========= Page ========= */
+
 export default function Home() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -193,10 +174,10 @@ export default function Home() {
 
   return (
     <main className="home" aria-label="Dreamy Resume home">
-      {/* Ambient spotlight follows cursor */}
+      {/* cursor */}
       <div className="cursor-halo" aria-hidden="true" />
 
-      {/* ===== HERO ===== */}
+      {/* HER*/}
       <section className="hero card" aria-labelledby="hero-title">
         <div className="hero-left fade-up">
           <p className="eyebrow">Dreamy Resume • built for calm</p>
@@ -218,21 +199,22 @@ export default function Home() {
         </div>
 
         <div className="hero-right fade-up delay-1">
-          <HeroPreview />
+          <HeroImage />
+          {/* decorative lines */}
           <svg className="hero-shapes" viewBox="0 0 600 120" aria-hidden="true">
             <defs>
               <linearGradient id="stripe" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#ffd6ec"/>
-                <stop offset="100%" stopColor="#d7c6ff"/>
+                <stop offset="0%" stopColor="#ffd6ec" />
+                <stop offset="100%" stopColor="#d7c6ff" />
               </linearGradient>
             </defs>
-            <path d="M0 100 C 150 20, 300 160, 600 60" fill="none" stroke="url(#stripe)" strokeWidth="16" opacity=".55"/>
-            <path d="M0 90 C 150 10, 300 150, 600 50" fill="none" stroke="url(#stripe)" strokeWidth="4" opacity=".35"/>
+            <path d="M0 100 C 150 20, 300 160, 600 60" fill="none" stroke="url(#stripe)" strokeWidth="16" opacity=".55" />
+            <path d="M0 90 C 150 10, 300 150, 600 50" fill="none" stroke="url(#stripe)" strokeWidth="4" opacity=".35" />
           </svg>
         </div>
       </section>
 
-      {/* ===== FEATURE STRIP ===== */}
+      {/* FEATURE */}
       <section className="feature card" aria-labelledby="feature-title">
         <h2 id="feature-title" className="sr-only">Highlights</h2>
         <FeatureCarousel />
@@ -255,7 +237,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== STEPS ===== */}
+      {/* STEPS  */}
       <section className="steps" aria-labelledby="steps-title">
         <h2 id="steps-title" className="sr-only">How it works</h2>
 
@@ -278,22 +260,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== BOTTOM CTAS ===== */}
+      {/*  BOTTOM CTAS*/}
       <div className="bottom-ctas fade-up" aria-label="Secondary actions">
-  <button
-    className="btn magnet"
-    onClick={() => navigate("/interview")}
-  >
-    Prep for interviews
-  </button>
-  <button
-    className="btn magnet"
-    onClick={() => navigate("/faqs")}
-  >
-    Read FAQs
-  </button>
-</div>
-
+        <button className="btn magnet" onClick={() => navigate("/interview")}>
+          Prep for interviews
+        </button>
+        <button className="btn magnet" onClick={() => navigate("/faqs")}>
+          Read FAQs
+        </button>
+      </div>
     </main>
   );
 }
