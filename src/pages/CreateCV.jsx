@@ -2,21 +2,21 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/createCV.css";
-import { useApp } from "../context/AppContext"; // optional, if present
+import { useApp } from "../context/AppContext"; 
 
 const LS_FORM = "dreamy.createCV.intro.v1";
 const LS_PREFS = "dreamy.cvPrefs.v1";
 const LS_RECO  = "dreamy.cvReco.v1";
 
-/* ---------- Intro-only fields ---------- */
+
 const defaultData = {
   name: "",
   email: "",
   role: "",
   experience: "",
-  job: "Design",      // “what is your job”
-  color: "mint",      // “vibe / color”
-  tone: "professional"// “style tone”
+  job: "Design",      
+  color: "mint",      
+  tone: "professional"
 };
 
 const stepsDef = [
@@ -25,11 +25,11 @@ const stepsDef = [
   { id: "role",       title: "Target role / title",    required: true,  type: "text",     placeholder: "e.g. Junior Designer" },
   { id: "experience", title: "Years of experience",    required: true,  type: "number",   placeholder: "e.g. 2" },
   { id: "job",        title: "Your field",             required: true,  type: "select",   options: ["Design","Marketing","HR","Software","Admin","Sales","Finance","Education"] },
-  { id: "style",      title: "Pick your vibe & tone",  required: true,  type: "style"     }, // color + tone
+  { id: "style",      title: "Pick your vibe & tone",  required: true,  type: "style"     }, 
   { id: "review",     title: "Review & continue",      required: false, type: "review"    },
 ];
 
-/* ---------- localStorage hook ---------- */
+
 function useLocalState(key, initial) {
   const [value, setValue] = useState(() => {
     try {
@@ -45,16 +45,16 @@ function useLocalState(key, initial) {
   return [value, setValue];
 }
 
-/* ---------- recommender by color + tone + field ---------- */
+
 function recommendTemplates(prefs) {
-  // keep in sync with your Templates.jsx ids
+  
   const all = [
     "pastel", "mint", "dark", "serif-cream", "modern-sky",
     "charcoal-pro", "lavender-glow", "coral-warm", "slate-columns",
     "photo-left", "notion-blocks"
   ];
 
-  // color weights (first = strongest)
+  
   const colorOrder = {
     mint:          ["mint","modern-sky","serif-cream","pastel","slate-columns","charcoal-pro","dark","lavender-glow","coral-warm","notion-blocks","photo-left"],
     pink:          ["pastel","lavender-glow","coral-warm","serif-cream","modern-sky","mint","notion-blocks","slate-columns","photo-left","charcoal-pro","dark"],
@@ -67,7 +67,7 @@ function recommendTemplates(prefs) {
     slate:         ["slate-columns","serif-cream","charcoal-pro","notion-blocks","modern-sky","mint","dark","photo-left","pastel","lavender-glow","coral-warm"]
   };
 
-  // tone weights
+ 
   const toneOrder = {
     professional: ["slate-columns","serif-cream","charcoal-pro","dark","modern-sky","mint","notion-blocks","photo-left","pastel","coral-warm","lavender-glow"],
     creative:     ["pastel","lavender-glow","notion-blocks","photo-left","modern-sky","mint","coral-warm","serif-cream","slate-columns","charcoal-pro","dark"],
@@ -75,7 +75,7 @@ function recommendTemplates(prefs) {
     minimal:      ["serif-cream","slate-columns","mint","modern-sky","notion-blocks","dark","charcoal-pro","photo-left","pastel","lavender-glow","coral-warm"]
   };
 
-  // field “nudges”
+
   let fieldBoost = [];
   switch ((prefs.job || "").toLowerCase()) {
     case "design":    fieldBoost = ["pastel","modern-sky","notion-blocks","photo-left","lavender-glow"]; break;
@@ -90,7 +90,7 @@ function recommendTemplates(prefs) {
   const byColor = colorOrder[prefs.color] || all;
   const byTone  = toneOrder[prefs.tone]   || all;
 
-  // Merge into a single ordered unique list (field nudges first)
+  
   const ordered = Array.from(new Set([...fieldBoost, ...byTone, ...byColor, ...all]));
   return { ordered, all };
 }
@@ -98,9 +98,9 @@ function recommendTemplates(prefs) {
 
 export default function CreateCV() {
   const navigate = useNavigate();
-  const { setCvPrefs } = useApp(); // safe if provided
+  const { setCvPrefs } = useApp(); 
 
-  // state
+ 
   const [data, setData] = useLocalState(LS_FORM, defaultData);
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState("forward");
@@ -108,7 +108,7 @@ export default function CreateCV() {
   const [error, setError] = useState("");
   const current = stepsDef[index];
 
-  // live-sync CreateCV answers into prefs so other pages can auto-fill
+  
 useEffect(() => {
   const t = setTimeout(() => {
     const prefs = {
@@ -257,7 +257,7 @@ useEffect(() => {
   );
 }
 
-/* ---------- Step renderer ---------- */
+
 function StepContent({ step, data, onInput }) {
   if (step.type === "text" || step.type === "email" || step.type === "number") {
     return (
@@ -346,13 +346,13 @@ function StepContent({ step, data, onInput }) {
           based on your vibe, tone and field. You can still choose any design you like.
         </p>
         <ul className="review-list">
-          <li><span>Name</span><b>{data.name || "—"}</b></li>
-          <li><span>Email</span><b>{data.email || "—"}</b></li>
-          <li><span>Role</span><b>{data.role || "—"}</b></li>
-          <li><span>Experience</span><b>{data.experience || "—"} yrs</b></li>
-          <li><span>Field</span><b>{data.job || "—"}</b></li>
-          <li><span>Vibe</span><b>{data.color || "—"}</b></li>
-          <li><span>Tone</span><b>{data.tone || "—"}</b></li>
+          <li><span>Name：</span><b>{data.name || "—"}</b></li>
+          <li><span>Email：</span><b>{data.email || "—"}</b></li>
+          <li><span>Role：</span><b>{data.role || "—"}</b></li>
+          <li><span>Experience：</span><b>{data.experience || "—"} yrs</b></li>
+          <li><span>Field：</span><b>{data.job || "—"}</b></li>
+          <li><span>Vibe：</span><b>{data.color || "—"}</b></li>
+          <li><span>Tone：</span><b>{data.tone || "—"}</b></li>
         </ul>
       </div>
     );
