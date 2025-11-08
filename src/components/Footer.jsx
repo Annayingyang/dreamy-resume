@@ -1,48 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../style/footer.css";
 
 export default function Footer() {
+  const navigate = useNavigate();
   const year = new Date().getFullYear();
 
-  const [open, setOpen] = useState(null); 
-  const dialogRef = useRef(null);         
+  const [open, setOpen] = useState(null);
+  const dialogRef = useRef(null);
 
-  useEffect(() => {
-    const applyHash = () => {
-      const h = (window.location.hash || "").replace("#", "");
-      if (h === "privacy" || h === "terms") setOpen(h);
-    };
-    applyHash();
-    window.addEventListener("hashchange", applyHash);
-    return () => window.removeEventListener("hashchange", applyHash);
-  }, []);
-
+  
   useEffect(() => {
     const onKey = (e) => (e.key === "Escape" ? setOpen(null) : null);
     if (open) window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  
-  useEffect(() => {
-    if (open && dialogRef.current) {
-      dialogRef.current.focus?.();
-    }
-  }, [open]);
-
-  const openModal = (which) => {
-    setOpen(which);
-    const url = new URL(window.location.href);
-    url.hash = which;
-    window.history.replaceState({}, "", url.toString());
-  };
-
-  const closeModal = () => {
-    setOpen(null);
-    const url = new URL(window.location.href);
-    url.hash = "";
-    window.history.replaceState({}, "", url.toString());
-  };
+  const openModal = (which) => setOpen(which);
+  const closeModal = () => setOpen(null);
 
   return (
     <footer className="footer">
@@ -53,11 +28,12 @@ export default function Footer() {
           <p className="tagline">Crafted with calm & creativity 🌷</p>
         </div>
 
+        {/* simple navigation buttons */}
         <nav className="footer-links">
-          <a href="/faqs">FAQs</a>
-          <a href="/interview">Interview Tips</a>
-          <a href="/templates">Templates</a>
-          <a href="/account">Account</a>
+          <button onClick={() => navigate("/faqs")}>FAQs</button>
+          <button onClick={() => navigate("/interview")}>Interview Tips</button>
+          <button onClick={() => navigate("/templates")}>Templates</button>
+          <button onClick={() => navigate("/account")}>Account</button>
         </nav>
 
         <div className="contact-col">
@@ -88,9 +64,9 @@ export default function Footer() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="policy-title"
-            tabIndex={-1}            
+            tabIndex={-1}
             onClick={(e) => e.stopPropagation()}
-            ref={dialogRef}          
+            ref={dialogRef}
           >
             <header className="policy-head">
               <h3 id="policy-title">
