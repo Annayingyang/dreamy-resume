@@ -5,6 +5,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   const [open, setOpen] = useState(null); 
+  const dialogRef = useRef(null);         
 
   useEffect(() => {
     const applyHash = () => {
@@ -16,16 +17,21 @@ export default function Footer() {
     return () => window.removeEventListener("hashchange", applyHash);
   }, []);
 
-  
   useEffect(() => {
     const onKey = (e) => (e.key === "Escape" ? setOpen(null) : null);
     if (open) window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  
+  useEffect(() => {
+    if (open && dialogRef.current) {
+      dialogRef.current.focus?.();
+    }
+  }, [open]);
+
   const openModal = (which) => {
     setOpen(which);
-  
     const url = new URL(window.location.href);
     url.hash = which;
     window.history.replaceState({}, "", url.toString());
@@ -33,7 +39,6 @@ export default function Footer() {
 
   const closeModal = () => {
     setOpen(null);
-    
     const url = new URL(window.location.href);
     url.hash = "";
     window.history.replaceState({}, "", url.toString());
@@ -75,7 +80,7 @@ export default function Footer() {
 
       <div className="footer-halo" aria-hidden="true" />
 
-      {/* Modal (single component swaps content) */}
+      {/* Modal */}
       {open && (
         <div className="policy-overlay" onClick={closeModal} role="presentation">
           <section
@@ -83,8 +88,9 @@ export default function Footer() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="policy-title"
+            tabIndex={-1}            
             onClick={(e) => e.stopPropagation()}
-            ref={dialogRef}
+            ref={dialogRef}          
           >
             <header className="policy-head">
               <h3 id="policy-title">

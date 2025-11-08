@@ -128,7 +128,7 @@
   background: linear-gradient(180deg,#ffeef6 0%,#ffe3f1 45%,#efe8ff 100%);
 }
 
-/* responsive */
+
 @media (max-width: 820px) {
   .footer-inner { grid-template-columns: 1fr 1fr; }
 }
