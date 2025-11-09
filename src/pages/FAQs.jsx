@@ -5,7 +5,7 @@ import "../style/FAQs.css";
 
 const LS_FAQ_FB = "dreamy.faq.feedback.v2";
 
-/** Categories */
+
 const CATS = [
   { id: "all", label: "All" },
   { id: "general", label: "General" },
@@ -17,18 +17,18 @@ const CATS = [
 
 /** FAQ content */
 const FAQS = [
-  // GENERAL
+  
   {
     id: "start",
     cat: "general",
     q: "How do I get started quickly?",
-    a: "Go to Create → fill in name, role, tone, and colour vibe. We’ll suggest a template, prefill sections, and you can fine-tune everything in the live preview.",
+    a: "Go to Create → fill in name, role, tone and colour vibe. We’ll suggest a template, prefill sections and you can fine tune everything in the live preview.",
   },
   {
     id: "export",
     cat: "general",
     q: "Can I export my CV as PDF or Word?",
-    a: "Yes. Use Export on the Template Details page. PDF locks layout for perfect visuals; Word is best if collaborators will edit text.",
+    a: "Yes. Use Export on the Template Details page. PDF locks layout for perfect visuals.",
   },
 
   // TEMPLATES
@@ -42,14 +42,14 @@ const FAQS = [
     id: "switching",
     cat: "templates",
     q: "Can I switch templates without losing my content?",
-    a: "Absolutely. Your content is independent from layout. Switch templates anytime—your data flows with you.",
+    a: "Absolutely. Your content is independent from layout. Switch templates anytime your data flows with you.",
   },
 
   // CREATE CV
   {
     id: "color-not-updating",
     cat: "create",
-    q: "My colour isn’t updating the highlight blocks—what should I check?",
+    q: "My colour isn’t updating the highlight blocks what should I check?",
     a: "Confirm that the chosen colour key exists in both the recommender and the templates . Please reload the page, Thank You.",
   },
   {
@@ -59,7 +59,7 @@ const FAQS = [
     a: "It nudges writing style, section prominence, and recommendation weights. ‘Professional’ surfaces serif/slate; ‘Creative’ brings fun pastels and dynamic layouts.",
   },
 
-  // INTERVIEW
+ 
   {
     id: "breathing",
     cat: "interview",
@@ -88,7 +88,7 @@ const FAQS = [
   },
 ];
 
-/* ----------------------------- utils ----------------------------- */
+
 const norm = (s) => (s || "").toLowerCase();
 const hi = (text, term) => {
   if (!term) return text;
@@ -103,7 +103,7 @@ const hi = (text, term) => {
   );
 };
 
-/** Tiny confetti  */
+
 function popConfetti(x = window.innerWidth / 2, y = window.innerHeight / 2) {
   const root = document.body;
   const N = 18;
@@ -246,7 +246,7 @@ export default function FAQs() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Filtered list
+  
   const list = useMemo(() => {
     const pool = cat === "all" ? FAQS : FAQS.filter((f) => f.cat === cat);
     if (!term) return pool;
@@ -254,7 +254,7 @@ export default function FAQs() {
     return pool.filter((f) => norm(f.q + " " + f.a).includes(t));
   }, [cat, term]);
 
-  // Fun “lucky” opener 
+  
   const randomize = () => {
     if (!list.length) return;
     const pick = list[Math.floor(Math.random() * list.length)];
