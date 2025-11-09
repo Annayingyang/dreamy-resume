@@ -246,12 +246,10 @@
   .account .profile-head.pulse .avatar { animation:none !important; transition:none !important; }
 }
 
-/* ===== Avatar click-to-pick ===== */
 .account .avatar-wrap { position: relative; width: 56px; height: 56px; }
 .account .avatar.is-clickable { cursor: pointer; border: none; width: 56px; height: 56px; border-radius: 18px; }
 .account .avatar.is-clickable:focus-visible { outline: 3px solid rgba(187,169,230,.5); }
 
-/* Popover */
 .account .avatar-picker{
   position: absolute;
   z-index: 5;
@@ -289,7 +287,7 @@
 }
 .account .btn.btn-sm{ height: 32px; padding: 0 10px; border-radius: 10px; font-weight: 800; }
 
-/* Swatch gradients reuse the same vibe classes as avatar */
+
 .account .swatch.vibe-rose     { background: radial-gradient(circle at 30% 30%, #fff, #ffe7f2 50%, #ffcfe8); }
 .account .swatch.vibe-mint     { background: radial-gradient(circle at 30% 30%, #fff, #e8fff5 50%, #bdf2e3); }
 .account .swatch.vibe-lavender { background: radial-gradient(circle at 30% 30%, #fff, #efe8ff 50%, #d9c9ff); }
@@ -297,10 +295,101 @@
 .account .swatch.vibe-coral    { background: radial-gradient(circle at 30% 30%, #fff, #fff1ed 50%, #ffd8c8); }
 .account .swatch.vibe-dark     { background: radial-gradient(circle at 30% 30%, #44465a, #595d7a 50%, #6a6a90); }
 
-/* Avatar vibe backgrounds (you already had these; keeping here for completeness) */
+
 .account .avatar.vibe-rose     { background: radial-gradient(120% 120% at 20% 20%, #fff 0%, #ffe7f2 40%, #ffcfe8 85%); box-shadow: inset 0 0 0 1px #fff, 0 10px 26px rgba(255,183,213,.38);}
 .account .avatar.vibe-mint     { background: radial-gradient(120% 120% at 20% 20%, #fff 0%, #e8fff5 40%, #bdf2e3 85%); box-shadow: inset 0 0 0 1px #fff, 0 10px 26px rgba(173,255,222,.36);}
 .account .avatar.vibe-lavender { background: radial-gradient(120% 120% at 20% 20%, #fff 0%, #efe8ff 40%, #d9c9ff 85%); box-shadow: inset 0 0 0 1px #fff, 0 10px 26px rgba(217,201,255,.38);}
 .account .avatar.vibe-sky      { background: radial-gradient(120% 120% at 20% 20%, #fff 0%, #f0f9ff 40%, #cfe8ff 85%); box-shadow: inset 0 0 0 1px #fff, 0 10px 26px rgba(207,232,255,.38);}
 .account .avatar.vibe-coral    { background: radial-gradient(120% 120% at 20% 20%, #fff 0%, #fff1ed 40%, #ffd8c8 85%); box-shadow: inset 0 0 0 1px #fff, 0 10px 26px rgba(255,187,153,.35);}
 .account .avatar.vibe-dark     { background: radial-gradient(120% 120% at 20% 20%, #2e2e40 0%, #4e4e68 40%, #6a6a90 85%); box-shadow: inset 0 0 0 1px #fff3, 0 10px 26px rgba(40,40,60,.4); color:#fff;}
+
+
+.auth-form input[type="checkbox"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--rose, #ec4899);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.auth-form input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #ffb6d0, #d7c6ff);
+  border-radius: 4px;
+  transform: scale(0);
+  opacity: 0;
+  transition: all 0.25s ease;
+}
+
+.auth-form input[type="checkbox"]:checked::after {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.auth-form input[type="checkbox"]:hover {
+  box-shadow: 0 0 6px rgba(236,72,153,0.35);
+}
+
+.auth-form input[type="checkbox"]:focus-visible {
+  outline: 2px solid #d7c6ff;
+  outline-offset: 2px;
+}
+
+.auth-form label.row {
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: var(--muted, #6b7392);
+  align-items: center;
+  user-select: none;
+}
+
+.auth-form label.row span.tiny {
+  font-size: 0.85rem;
+}
+
+
+
+@media (max-width: 900px) {
+  .auth-form label.row {
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+  .auth-form input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .auth-form label.row {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    font-size: 0.85rem;
+    gap: 6px;
+  }
+  .auth-form input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+
+@media (max-width: 420px) {
+  .auth-form label.row {
+    gap: 5px;
+    font-size: 0.8rem;
+  }
+  .auth-form input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+  }
+}

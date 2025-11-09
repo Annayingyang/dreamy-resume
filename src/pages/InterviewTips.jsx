@@ -2,9 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../context/AppContext";
 import "../style/InterviewTips.css";
 
-/** ----------------------------------------------------------
- *   Mock data (acts like a free-API response)
- * ---------------------------------------------------------- */
+
 const MOCK_TIPS = {
   stressed: [
     { title: "Reset Phrase", points: ["Say silently: “Pause. Breathe. I’ve prepared.”"] },
@@ -25,7 +23,7 @@ const MOCK_TIPS = {
     sales:   ["Business formal", "Crisp shirt/blouse", "Polished shoes"],
     finance: ["Business formal", "Neutral palette", "Minimal accessories"],
     education:["Smart-casual", "Comfortable clean shoes", "Subtle colours"],
-    default: ["Business-smart", "Clean shoes", "Wrinkle-free layers", "Simple accessories"],
+    default: ["Business-smart", "Clean shoes", "Wrinkle free layers", "Simple accessories"],
   },
   students: [
     { title: "Experience without jobs", points: ["Class projects → Outcomes", "Societies → Leadership", "Volunteering → Impact"] },
@@ -86,7 +84,7 @@ const INDUSTRY_QUESTIONS = {
   ],
 };
 
-/** Keyword extractor for resume text */
+
 function extractKeywords(text) {
   return Array.from(
     new Set(
@@ -99,7 +97,6 @@ function extractKeywords(text) {
   ).slice(0, 12);
 }
 
-/** Build STAR suggestions from role/industry/keywords */
 function buildStarSuggestions({ role, industry, summary, skills }) {
   const kws = extractKeywords(`${summary}\n${skills}`);
   const metric = (hint) =>
@@ -138,7 +135,7 @@ function buildStarSuggestions({ role, industry, summary, skills }) {
     Default:{
       situation: "Team struggled to prioritise workload",
       task:      "Create simple planning rhythm",
-      action:    "Introduced weekly stand-ups, Kanban WIP limits, clear owners",
+      action:    "Introduced weekly stand ups, Kanban WIP limits, clear owners",
       result:    metric("throughput"),
     },
   };
@@ -152,7 +149,7 @@ function buildStarSuggestions({ role, industry, summary, skills }) {
   };
 }
 
-/** Validation */
+
 function validate(form) {
   const errors = {};
   if (!form.industry) errors.industry = "Please choose an industry.";
@@ -161,11 +158,11 @@ function validate(form) {
   return errors;
 }
 
-/** Local storage keys */
+
 const LS_KEY = "interview_tips_form_v3";
 const LS_ANSWER = "interview_tips_live_answer_v3";
 
-/** ========= Inline polish helpers (rewrite your text in place) ========= */
+
 function smartCap(s) {
   if (!s) return s;
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -230,7 +227,7 @@ function polishInline(original) {
 export default function InterviewTips() {
   const { user, cvPrefs } = useApp();
 
-  // seeded by Context if available
+ 
   const [form, setForm] = useState({
     name: cvPrefs?.name || user?.name || "",
     email: cvPrefs?.email || "",
@@ -241,7 +238,7 @@ export default function InterviewTips() {
     skills: "",
   });
 
-  const [activeTab, setActiveTab] = useState("coach"); // coach | stressed | say | wear | students
+  const [activeTab, setActiveTab] = useState("coach"); 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [loadingCoach, setLoadingCoach] = useState(false);
@@ -251,9 +248,9 @@ export default function InterviewTips() {
   const [liveTyped, setLiveTyped] = useState("");
   const [showIntro, setShowIntro] = useState(true);
 
-  /** ===== Breathing animation controls (accurate 4–4–4–4 with both Holds) ===== */
+  
   const [breathing, setBreathing] = useState(false);
-  const [breathPhase, setBreathPhase] = useState("Ready"); // Inhale | Hold | Exhale | Hold
+  const [breathPhase, setBreathPhase] = useState("Ready"); 
   const [breathCount, setBreathCount] = useState(4);
   const countdownRef = useRef(null);
   const phaseTimeoutRef = useRef(null);
@@ -301,14 +298,34 @@ export default function InterviewTips() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [breathing]);
 
-  /** Simulate initial fetch (skeletons) */
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 500);
-    const i = setTimeout(() => setShowIntro(false), 1400);
-    return () => { clearTimeout(t); clearTimeout(i); };
-  }, []);
+  
+  
+useEffect(() => {
+  const ac = new AbortController();
+  async function run() {
+    try {
+      setLoading(true);
+      
+      const r = await fetch("/interview-tips.json", { signal: ac.signal });
+      
+      await r.json();
+      
+      setShowIntro(true);
+      setTimeout(() => setShowIntro(false), 900);
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        
+        console.warn("Tips prefetch failed:", err);
+      }
+    } finally {
+      setLoading(false); 
+    }
+  }
+  run();
+  return () => ac.abort();
+}, []);
 
-  /** Restore from localStorage */
+
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
@@ -318,7 +335,6 @@ export default function InterviewTips() {
     } catch {}
   }, []);
 
-  /** Persist to localStorage */
   useEffect(() => {
     try { localStorage.setItem(LS_KEY, JSON.stringify(form)); } catch {}
   }, [form]);
@@ -326,7 +342,7 @@ export default function InterviewTips() {
     try { localStorage.setItem(LS_ANSWER, liveTyped || ""); } catch {}
   }, [liveTyped]);
 
-  /** Re-generate suggestions whenever resume changes */
+ 
   useEffect(() => {
     if (activeTab !== "coach") return;
     setLoadingCoach(true);
@@ -354,7 +370,7 @@ export default function InterviewTips() {
     setTimeout(() => answerInputRef.current?.focus(), 50);
   };
 
-  /** Outfit logic: show all categories; mark recommended based on selected industry */
+  
   const wearCatalog = useMemo(() => {
     const base = MOCK_TIPS.wear;
     return [
@@ -370,7 +386,7 @@ export default function InterviewTips() {
   }, []);
   const recommendedKey = (form.industry || "").toLowerCase();
 
-  /** Live coach hint */
+ 
   const liveHint = useMemo(() => {
     if (!liveTyped.trim()) return "Tip: Start with the S in STAR (Situation) in one crisp line.";
     if (liveTyped.length < 60) return "Add your ACTION—what exactly did you do?";
@@ -379,7 +395,7 @@ export default function InterviewTips() {
     return "Looks strong—close with impact and tie it to this role.";
   }, [liveTyped]);
 
-  /** Polish (in-place) + Undo */
+ 
   const prevAnswerRef = useRef("");
   const polishAnswer = () => {
     const base = (liveTyped || "").trim();
@@ -395,7 +411,7 @@ export default function InterviewTips() {
     }
   };
 
-  /** Tailored questions based on industry */
+ 
   const industryKey = (form.industry || "").trim();
   const questionBank =
     industryKey && INDUSTRY_QUESTIONS[industryKey]
@@ -445,7 +461,7 @@ export default function InterviewTips() {
         </nav>
       </header>
 
-      {/* ====== LOADING SKELETON ====== */}
+      {/* LOADING  */}
       {loading ? (
         <div className="skeleton">
           <div className="line w60"></div>
@@ -459,7 +475,7 @@ export default function InterviewTips() {
         </div>
       ) : (
         <>
-          {/* ====== COACH TAB ====== */}
+          {/*  COACH TAB  */}
           {activeTab === "coach" && (
             <div className="panel">
               <form className="coach-form" onSubmit={onSubmit} noValidate>
@@ -607,7 +623,7 @@ export default function InterviewTips() {
                         <summary>Show a sample opener</summary>
                         <p className="muted">
                           “In my {form.industry || "recent"} work as a {form.role || "candidate"}, I faced {coach.situation}.
-                          My responsibility was to {coach.task.toLowerCase()}. I {coach.action.toLowerCase()} —
+                          My responsibility was to {coach.task.toLowerCase()}. I {coach.action.toLowerCase()} 
                           resulting in {coach.result}. That’s why I’m excited about doing similar impact here.”
                         </p>
                       </details>
@@ -620,7 +636,7 @@ export default function InterviewTips() {
             </div>
           )}
 
-          {/* ====== STRESSED TAB ====== */}
+          {/*  STRESSED TAB  */}
           {activeTab === "stressed" && (
             <div className="panel grid-3">
               {/* Breathing trainer */}
@@ -662,7 +678,7 @@ export default function InterviewTips() {
             </div>
           )}
 
-          {/* ====== WHAT TO SAY TAB ====== */}
+          {/* WHAT TO SA */}
           {activeTab === "say" && (
             <div className="panel grid-3">
               {MOCK_TIPS.say.map((b, i) => (
@@ -683,7 +699,7 @@ export default function InterviewTips() {
             </div>
           )}
 
-          {/* ====== WHAT TO WEAR TAB ====== */}
+          {/*  WHAT TO WEAR */}
           {activeTab === "wear" && (
             <div className="panel wear">
               <p className="muted">
@@ -713,7 +729,7 @@ export default function InterviewTips() {
             </div>
           )}
 
-          {/* ====== NEW STUDENTS TAB ====== */}
+          {/*NEW */}
           {activeTab === "students" && (
             <div className="panel grid-3">
               {MOCK_TIPS.students.map((b, i) => (

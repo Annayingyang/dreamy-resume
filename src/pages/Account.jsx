@@ -1,31 +1,60 @@
-// src/pages/Account.jsx
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import "../style/account.css";
 
-/* ==== LocalStorage keys ==== */
-const LS_USER   = "dreamy.auth.user.v1";
-const LS_PREFS  = "dreamy.cvPrefs.v1";
-const LS_RECO   = "dreamy.cvReco.v1";
+
+// A dictionary of users, keyed by email: { [email]: {name, email, passwordHash, avatarColor, createdAt} }
+const LS_USERS    = "dreamy.auth.users.v1";
+
+const LS_SESSION  = "dreamy.auth.session.v1";
+
+const LS_PREFS    = "dreamy.cvPrefs.v1";
+const LS_RECO     = "dreamy.cvReco.v1";
 const DRAFT_PREFIX = "dreamy.tplDraft.";
 
+/* JSON helpers */
 const readJSON = (k, fallback = null) => {
   try { return JSON.parse(localStorage.getItem(k) || "null") ?? fallback; }
   catch { return fallback; }
 };
 const writeJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
-/* Available avatar vibes */
-const AVATAR_VIBES = [
-  { key: "rose",     label: "Rose" },
-  { key: "mint",     label: "Mint" },
-  { key: "lavender", label: "Lavender" },
-  { key: "sky",      label: "Sky" },
-  { key: "coral",    label: "Coral" },
-  { key: "dark",     label: "Dark" },
-];
+/* Crypto: hash passwords so we never store them raw */
+async function sha256(text) {
+  const data = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
 
+/* Users CRUD (local) */
+function readUsers() { return readJSON(LS_USERS, {}); }
+function writeUsers(users) { writeJSON(LS_USERS, users || {}); }
+function getSessionEmail() { return localStorage.getItem(LS_SESSION) || ""; }
+function setSessionEmail(email) {
+  if (email) localStorage.setItem(LS_SESSION, email);
+  else localStorage.removeItem(LS_SESSION);
+}
+
+/* Misc */
+const TPL_META = {
+  pastel: { name: "Pastel Classic", thumb: "/assets/home/templates/pastel.png" },
+  mint: { name: "Minimal Mint", thumb: "/assets/home/templates/mint.png" },
+  dark: { name: "Elegant Dark", thumb: "/assets/home/templates/dark.png" },
+  "serif-cream": { name: "Serif Cream", thumb: "/assets/home/templates/serif-cream.png" },
+  "modern-sky": { name: "Modern Sky", thumb: "/assets/home/templates/modern-sky.png" },
+  "charcoal-pro": { name: "Charcoal Pro", thumb: "/assets/home/templates/charcoal-pro.png" },
+  "lavender-glow": { name: "Lavender Glow", thumb: "/assets/home/templates/lavender-glow.png" },
+  "coral-warm": { name: "Coral Warm", thumb: "/assets/home/templates/coral-warm.png" },
+  "slate-columns": { name: "Slate Columns", thumb: "/assets/home/templates/slate-columns.png" },
+  "photo-left": { name: "Photo Left", thumb: "/assets/home/templates/photo-left.png" },
+  "notion-blocks": { name: "Notion Blocks", thumb: "/assets/home/templates/notion-blocks.png" },
+};
+const asset = (p) => `${process.env.PUBLIC_URL}${p}`;
+const isEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((s || "").trim());
+
+/* Draft discovery (unchanged) */
 function listTemplateDrafts() {
   const drafts = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -51,21 +80,15 @@ function listTemplateDrafts() {
   return Array.from(byId.values());
 }
 
-const TPL_META = {
-  pastel: { name: "Pastel Classic", thumb: "/assets/home/templates/pastel.png" },
-  mint: { name: "Minimal Mint", thumb: "/assets/home/templates/mint.png" },
-  dark: { name: "Elegant Dark", thumb: "/assets/home/templates/dark.png" },
-  "serif-cream": { name: "Serif Cream", thumb: "/assets/home/templates/serif-cream.png" },
-  "modern-sky": { name: "Modern Sky", thumb: "/assets/home/templates/modern-sky.png" },
-  "charcoal-pro": { name: "Charcoal Pro", thumb: "/assets/home/templates/charcoal-pro.png" },
-  "lavender-glow": { name: "Lavender Glow", thumb: "/assets/home/templates/lavender-glow.png" },
-  "coral-warm": { name: "Coral Warm", thumb: "/assets/home/templates/coral-warm.png" },
-  "slate-columns": { name: "Slate Columns", thumb: "/assets/home/templates/slate-columns.png" },
-  "photo-left": { name: "Photo Left", thumb: "/assets/home/templates/photo-left.png" },
-  "notion-blocks": { name: "Notion Blocks", thumb: "/assets/home/templates/notion-blocks.png" },
-};
-const asset = (p) => `${process.env.PUBLIC_URL}${p}`;
-const isEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((s || "").trim());
+
+const AVATAR_VIBES = [
+  { key: "rose",     label: "Rose" },
+  { key: "mint",     label: "Mint" },
+  { key: "lavender", label: "Lavender" },
+  { key: "sky",      label: "Sky" },
+  { key: "coral",    label: "Coral" },
+  { key: "dark",     label: "Dark" },
+];
 
 export default function Account() {
   const nav = useNavigate();
@@ -73,7 +96,7 @@ export default function Account() {
   const { user, setUser, favourites = [] } = useApp();
 
   const seedPrefs = readJSON(LS_PREFS, {});
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState("login"); 
   const [form, setForm] = useState({
     name: (seedPrefs?.name || user?.name || "").trim(),
     email: (seedPrefs?.email || "").trim(),
@@ -82,11 +105,34 @@ export default function Account() {
   const [err, setErr] = useState("");
   const [helloPulse, setHelloPulse] = useState(false);
 
-  /* ---------- restore session ---------- */
+  // UI/UX toggles
+  const [remember, setRemember] = useState(true); 
+  const [authLoading, setAuthLoading] = useState(false);
+
+  
+  const [pageLoading, setPageLoading] = useState(true);
+  const [pageHint, setPageHint] = useState("");
+
+ 
   useEffect(() => {
-    const saved = readJSON(LS_USER);
-    if (saved?.email) { setUser?.(saved); }
+    const email = getSessionEmail();
+    if (!email) return;
+    const users = readUsers();
+    const existing = users[email];
+    if (existing) setUser?.(existing);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    setPageLoading(true);
+    setPageHint("");
+    fetch("https://jsonplaceholder.typicode.com/todos/1", { signal: ac.signal })
+      .then(r => r.json())
+      .then(() => setPageHint("Synced ✓"))
+      .catch((e) => { if (e.name !== "AbortError") setPageHint("Offline — using local data"); })
+      .finally(() => setPageLoading(false));
+    return () => ac.abort();
   }, []);
 
   useEffect(() => {
@@ -104,61 +150,81 @@ export default function Account() {
   const update = (k, v) => setForm((p) => ({ ...p, [k]: v }));
   const switchMode = () => { setErr(""); setMode((m) => (m === "login" ? "signup" : "login")); };
 
-  const saveUser = (u) => { writeJSON(LS_USER, u); setUser?.(u); };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setErr("");
 
-    if (!isEmail(form.email)) return setErr("Please enter a valid email.");
-    if (mode === "signup" && !form.name.trim()) return setErr("Please add your name.");
+    const email = form.email.trim();
+    const name  = form.name.trim();
+    const password = form.password;
 
-    const current = readJSON(LS_USER, null);
+    if (!isEmail(email)) return setErr("Please enter a valid email.");
+    if (!password) return setErr("Please enter your password.");
+    if (mode === "signup" && !name) return setErr("Please add your name.");
 
-    if (mode === "signup") {
-      const profile = {
-        name: form.name.trim(),
-        email: form.email.trim(),
-        password: form.password || "",
-        avatarColor: current?.avatarColor || "rose", // default color
-        createdAt: new Date().toISOString(),
-      };
-      saveUser(profile);
-      if (location.state?.from) nav(location.state.from);
-      return;
-    }
+    setAuthLoading(true);
+    try {
+      
+      await fetch(`https://jsonplaceholder.typicode.com/users?email=${encodeURIComponent(email)}`).then(r => r.json());
 
-    if (!current || current.email !== form.email.trim()) {
-      const soft = {
-        name: form.name.trim() || "Guest",
-        email: form.email.trim(),
-        password: form.password || "",
-        avatarColor: "rose",
-        createdAt: new Date().toISOString(),
-      };
-      saveUser(soft);
-    } else {
-      if ((current.password || "") !== (form.password || "")) {
+      const users = readUsers();
+      const enteredHash = await sha256(password);
+
+      if (mode === "signup") {
+        if (users[email]) {
+          return setErr("An account with this email already exists. Try logging in.");
+        }
+        const profile = {
+          name,
+          email,
+          passwordHash: enteredHash,        
+          avatarColor: "rose",
+          createdAt: new Date().toISOString(),
+        };
+        users[email] = profile;
+        writeUsers(users);
+
+        
+        setSessionEmail(email);
+        setUser?.(profile);
+        if (location.state?.from) nav(location.state.from);
+        return;
+      }
+
+      // LOGIN: must already exist
+      const existing = users[email];
+      if (!existing) {
+        return setErr("No account found for this email. Please sign up first.");
+      }
+      if (!existing.passwordHash) {
+      
+        return setErr("This account needs a password set. Please sign up again to set a password.");
+      }
+      if (existing.passwordHash !== enteredHash) {
         return setErr("Email found, but the password doesn’t match.");
       }
-      saveUser(current);
+
+     
+      if (remember) setSessionEmail(email);
+      else setSessionEmail(email); 
+
+      setUser?.(existing);
+    } catch {
+      setErr("Network hiccup — try again.");
+    } finally {
+      setAuthLoading(false);
     }
   };
 
   const onLogout = () => {
-    localStorage.removeItem(LS_USER);
+    setSessionEmail(""); 
     setUser?.(null);
     setForm((p) => ({ ...p, password: "" }));
     nav("/", { replace: true });
   };
 
-  const displayName = (user?.name || prefs?.name || "there").trim();
-  const recommendedId = useMemo(() => {
-    const order = Array.isArray(reco?.ordered) ? reco.ordered : [];
-    return order.length ? order[0] : null;
-  }, [reco]);
-
-  /* ============== NEW: Avatar Color Picker ============== */
+ 
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickerRef = useRef(null);
   const theme = (user?.avatarColor || prefs?.color || "rose").toLowerCase();
@@ -174,14 +240,38 @@ export default function Account() {
   }, [pickerOpen]);
 
   const setAvatarColor = (key) => {
-    const next = { ...(user || { name: displayName || "Guest", email: "" }), avatarColor: key };
-    saveUser(next);
+    const email = getSessionEmail();
+    if (!email) return; 
+    const users = readUsers();
+    const existing = users[email];
+    if (!existing) return;
+
+    const next = { ...existing, avatarColor: key };
+    users[email] = next;
+    writeUsers(users);
+    setUser?.(next);
     setPickerOpen(false);
   };
 
-  /* ---------- UI ---------- */
+  
+  const PageSkeleton = (
+    <section className="account card" aria-busy="true">
+      <header className="auth-head">
+        <div className="skeleton-line w40" role="heading" aria-level="1"></div>
+        <div className="skeleton-line w90"></div>
+      </header>
+      <div className="skeleton-grid">
+        <div className="skeleton-card" />
+        <div className="skeleton-card" />
+        <div className="skeleton-card" />
+      </div>
+      <p className="tiny muted" style={{ marginTop: 8 }}>{pageHint || "Loading…"}</p>
+    </section>
+  );
+
+
   const LoggedOut = (
-    <section className="account card auth">
+    <section className="account card auth" aria-busy={authLoading}>
       <header className="auth-head">
         <h1>{mode === "login" ? "Welcome back" : "Create your account"}</h1>
         <p className="muted">Sign {mode === "login" ? "in" : "up"} to save templates, auto-fill details, and sync your pastel vibes.</p>
@@ -191,32 +281,55 @@ export default function Account() {
         {mode === "signup" && (
           <label className="fg">
             <span>Name</span>
-            <input placeholder="e.g. Anna Ying Yang" value={form.name} onChange={(e) => update("name", e.target.value)} />
+            <input
+              placeholder="e.g. Anna Ying Yang"
+              value={form.name}
+              onChange={(e) => update("name", e.target.value)}
+            />
           </label>
         )}
 
         <label className="fg">
           <span>Email</span>
-          <input type="email" placeholder="you@example.com" value={form.email} onChange={(e) => update("email", e.target.value)} />
+          <input
+            type="email"
+            placeholder="you@example.com"
+            value={form.email}
+            onChange={(e) => update("email", e.target.value)}
+          />
         </label>
 
         <label className="fg">
           <span>Password</span>
-          <input type="password" placeholder="••••••••" value={form.password} onChange={(e) => update("password", e.target.value)} />
+          <input
+            type="password"
+            placeholder="••••••••"
+            value={form.password}
+            onChange={(e) => update("password", e.target.value)}
+          />
+        </label>
+
+        {/* Remember me */}
+        <label className="fg row" style={{ alignItems: "center", gap: 8 }}>
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+            aria-label="Keep me signed in on this device"
+          />
+          <span className="tiny muted">Keep me signed in on this device</span>
         </label>
 
         {err && <p className="err" role="alert">{err}</p>}
 
         <div className="row">
-          <button className="btn btn-primary" type="submit">{mode === "login" ? "Login" : "Sign up"}</button>
-          <button className="btn" type="button" onClick={switchMode}>
+          <button className="btn btn-primary" type="submit" disabled={authLoading}>
+            {authLoading ? "Please wait…" : (mode === "login" ? "Login" : "Sign up")}
+          </button>
+          <button className="btn" type="button" onClick={switchMode} disabled={authLoading}>
             {mode === "login" ? "New here? Create account" : "Have an account? Login"}
           </button>
         </div>
-
-        {(seedPrefs?.name || seedPrefs?.email) && (
-          <p className="tiny muted" style={{ marginTop: 8 }}>Tip: we prefilled your details from CreateCV.</p>
-        )}
       </form>
 
       <div className="auth-links">
@@ -226,6 +339,12 @@ export default function Account() {
       </div>
     </section>
   );
+
+  const displayName = (user?.name || seedPrefs?.name || "there").trim();
+  const recommendedId = useMemo(() => {
+    const order = Array.isArray(reco?.ordered) ? reco.ordered : [];
+    return order.length ? order[0] : null;
+  }, [reco]);
 
   const LoggedIn = (
     <section className="account card profile" id="me">
@@ -238,10 +357,7 @@ export default function Account() {
             onClick={() => setPickerOpen((v) => !v)}
             type="button"
             title="Change color"
-          >
-            {/* could show initial here if you like */}
-          </button>
-
+          />
           {pickerOpen && (
             <div className="avatar-picker">
               <div className="picker-head">Choose avatar color</div>
@@ -268,10 +384,10 @@ export default function Account() {
           <h1>Hi, {displayName}</h1>
           <p className="muted">Your dashboard keeps your details, recommendations, and drafts together.</p>
           <div className="chip-row">
-            {prefs?.job && <span className="chip">{prefs.job}</span>}
-            {prefs?.role && <span className="chip">{prefs.role}</span>}
-            {prefs?.color && <span className="chip">vibe: {prefs.color}</span>}
-            {prefs?.tone && <span className="chip">tone: {prefs.tone}</span>}
+            {seedPrefs?.job && <span className="chip">{seedPrefs.job}</span>}
+            {seedPrefs?.role && <span className="chip">{seedPrefs.role}</span>}
+            {seedPrefs?.color && <span className="chip">vibe: {seedPrefs.color}</span>}
+            {seedPrefs?.tone && <span className="chip">tone: {seedPrefs.tone}</span>}
           </div>
         </div>
 
@@ -340,10 +456,13 @@ export default function Account() {
                   <img src={asset(meta.thumb || "/assets/home/templates/pastel.png")} alt={`${meta.name || d.id} preview`} />
                   <div className="meta">
                     <strong>{meta.name || d.id}</strong>
-                    <p className="tiny muted">{person ? `for ${person}` : (prefs?.name || "—")}</p>
+                    <p className="tiny muted">{person ? `for ${person}` : (seedPrefs?.name || "—")}</p>
                     <div className="row">
                       <button className="btn btn-sm" onClick={() => nav(`/templates/${d.id}`)}>Continue</button>
-                      <button className="btn btn-sm danger" onClick={() => { localStorage.removeItem(d.key); window.location.reload(); }}>
+                      <button
+                        className="btn btn-sm danger"
+                        onClick={() => { localStorage.removeItem(d.key); window.location.reload(); }}
+                      >
                         Clear
                       </button>
                     </div>
@@ -357,5 +476,6 @@ export default function Account() {
     </section>
   );
 
+  if (pageLoading) return PageSkeleton;
   return user?.email ? LoggedIn : LoggedOut;
 }
